@@ -35,10 +35,13 @@ public class Senior {
     private String name;
 
     @Column(nullable = false)
-    private boolean sex;
+    private String sex;
 
     @Column(nullable = false)
     private LocalDate birth;
+
+    @Column(nullable = false)
+    private String residence;
 
     @Column(nullable = false)
     private String address;

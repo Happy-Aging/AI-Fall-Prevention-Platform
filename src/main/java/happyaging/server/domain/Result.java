@@ -3,15 +3,12 @@ package happyaging.server.domain;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,20 +19,27 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicUpdate
 @Entity
 @Getter
-@Table(name = "survey")
-public class Survey {
+@Table(name = "result")
+public class Result {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "survey_id")
+    @Column(name = "result_id")
     private Long id;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private Integer rank;
 
-    @ManyToOne
-    @JoinColumn(name = "senior_id")
-    private Senior senior;
+    @Column(name = "total_score", nullable = false)
+    private Double totalScore;
 
-    @OneToOne(mappedBy = "survey", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Result result;
+    @Column(nullable = false)
+    private String summary;
+
+    @Column(nullable = false)
+    private String report;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "survey_id")
+    private Survey survey;
+
 }

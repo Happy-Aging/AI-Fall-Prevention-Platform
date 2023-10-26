@@ -1,9 +1,9 @@
 package happyaging.server.controller;
 
-import happyaging.server.domain.Account;
+import happyaging.server.domain.User;
 import happyaging.server.dto.SeniorRequestDTO;
-import happyaging.server.service.AccountService;
 import happyaging.server.service.SeniorService;
+import happyaging.server.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,15 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("senior")
 public class SeniorController {
-    private final AccountService accountService;
+    private final UserService userService;
     private final SeniorService seniorService;
 
     @PostMapping
     public ResponseEntity<Object> createSenior(@RequestBody @Valid SeniorRequestDTO seniorRequestDTO) {
         // TODO 로그인 기능 구현 후 token 분리하여 accountID 얻기
 
-        Account account = accountService.getAccountById(1L);
-        seniorService.createSenior(account, seniorRequestDTO);
+        User user = userService.getUserById(1L);
+        seniorService.createSenior(user, seniorRequestDTO);
         return new ResponseEntity<>("create senior success!", HttpStatus.CREATED);
     }
 }

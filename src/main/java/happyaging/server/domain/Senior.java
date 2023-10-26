@@ -52,8 +52,8 @@ public class Senior {
     private String profile;
 
     @ManyToOne
-    @JoinColumn(name = "account_id")
-    private Account account;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @OneToMany(mappedBy = "senior", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Survey> surveyList = new ArrayList<>();

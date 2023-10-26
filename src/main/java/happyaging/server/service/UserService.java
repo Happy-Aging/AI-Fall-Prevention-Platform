@@ -4,8 +4,10 @@ import happyaging.server.domain.User;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.ErrorCode;
 import happyaging.server.repository.UserRepository;
+import happyaging.server.utils.JwtTokenUtil;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder encoder;
+
+    @Value("${jwt.token.secret}")
+    private String key;
+    private Long expireTimeMs = 1000 * 60 * 60L;
 
     @Transactional(readOnly = true)
     public User getUserById(Long accountId) {
@@ -41,5 +47,21 @@ public class UserService {
                 .build();
         userRepository.save(user);
         return "SUCCESS";
+    }
+
+    public String login(String email, String password) {
+        // useremail 없음
+        User selectedUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "이 없습니다."));
+
+        // password 틀림
+        if (!encoder.matches(password, selectedUser.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_PASSWORD, "패스워드를 잘못 입력 했습니다");
+        }
+
+        String token = JwtTokenUtil.createToken(selectedUser.getEmail(), key, expireTimeMs);
+
+        // 앞에서 exception 안 났으면 토큰 발행
+        return token;
     }
 }

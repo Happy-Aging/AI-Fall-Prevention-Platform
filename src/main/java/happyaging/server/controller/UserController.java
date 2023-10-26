@@ -1,6 +1,7 @@
 package happyaging.server.controller;
 
 import happyaging.server.dto.UserJoinRequestDTO;
+import happyaging.server.dto.UserLoginRequestDTO;
 import happyaging.server.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +23,11 @@ public class UserController {
         userService.join(userJoinRequestDTO.getEmail(), userJoinRequestDTO.getPassword(),
                 userJoinRequestDTO.getNickname());
         return ResponseEntity.ok().body("회원가입이 성공했습니다");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody @Valid UserLoginRequestDTO userLoginRequestDTO) {
+        String token = userService.login(userLoginRequestDTO.getEmail(), userLoginRequestDTO.getPassword());
+        return ResponseEntity.ok().body(token);
     }
 }

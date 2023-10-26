@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,10 +22,16 @@ public class SeniorController {
     private final SeniorService seniorService;
 
     @PostMapping
-    public ResponseEntity<Object> createSenior(@RequestBody @Valid SeniorRequestDTO seniorRequestDTO) {
-        // TODO 로그인 기능 구현 후 token 분리하여 accountID 얻기
+    public ResponseEntity<Object> createSenior(Authentication authentication,
+                                               @RequestBody @Valid SeniorRequestDTO seniorRequestDTO) {
+        if (authentication == null) {
+            //TODO 허용되지 않은 접근이라는 에러
+        }
+        String email = authentication.getName();
 
-        User user = userService.getUserById(1L);
+        System.out.println(email + "님 반가워요");
+
+        User user = userService.getUserByEmail(email);
         seniorService.createSenior(user, seniorRequestDTO);
         return new ResponseEntity<>("create senior success!", HttpStatus.CREATED);
     }

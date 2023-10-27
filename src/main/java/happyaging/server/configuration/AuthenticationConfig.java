@@ -29,7 +29,7 @@ public class AuthenticationConfig {
                 .csrf().disable()
                 .cors().and()
                 .authorizeHttpRequests()
-                .requestMatchers("/user/join", "/user/login").permitAll()
+                .requestMatchers("/user/join", "/user/login", "/user/refreshToken").permitAll()
                 .requestMatchers(HttpMethod.POST, "/**").authenticated()
                 .and()
                 .sessionManagement()

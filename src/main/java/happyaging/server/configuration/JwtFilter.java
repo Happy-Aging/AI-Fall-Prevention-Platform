@@ -29,34 +29,33 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        log.info("authorization : {}", authorization);
 
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            log.error("authorization을 잘못 보냈습니다.");
             filterChain.doFilter(request, response);
             return;
         }
 
         // Token 꺼내기
         String token = authorization.split(" ")[1];
-        log.info("token : {}", token);
-
         // Token expired 됐는지 확인
         if (JwtUtil.isExpired(token, secretKey)) {
-            log.error("Token이 만료되었습니다.");
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
-        String email = JwtUtil.getUserEmail(token, secretKey);
-        log.info("userEmail:{}", email);
+        String tokenType = JwtUtil.getTokenType(token, secretKey);
+        if ("REFRESH_TOKEN".equals(tokenType)) {
+            filterChain.doFilter(request, response);
+        } else if ("ACCESS_TOKEN".equals(tokenType)) {
+            String email = JwtUtil.getUserEmail(token, secretKey);
 
-        // 권한 부여
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(email, null, List.of(new SimpleGrantedAuthority("USER")));
+            // 권한 부여
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(email, null, List.of(new SimpleGrantedAuthority("USER")));
 
-        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-        filterChain.doFilter(request, response);
-
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            filterChain.doFilter(request, response);
+        }
     }
 }

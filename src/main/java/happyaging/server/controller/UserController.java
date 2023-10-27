@@ -1,5 +1,7 @@
 package happyaging.server.controller;
 
+import happyaging.server.dto.LoginResponseToken;
+import happyaging.server.dto.RefreshRequestDTO;
 import happyaging.server.dto.UserJoinRequestDTO;
 import happyaging.server.dto.UserLoginRequestDTO;
 import happyaging.server.service.UserService;
@@ -26,8 +28,15 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody @Valid UserLoginRequestDTO userLoginRequestDTO) {
-        String token = userService.login(userLoginRequestDTO.getEmail(), userLoginRequestDTO.getPassword());
+    public ResponseEntity<LoginResponseToken> login(@RequestBody @Valid UserLoginRequestDTO userLoginRequestDTO) {
+        LoginResponseToken token = userService.login(userLoginRequestDTO.getEmail(), userLoginRequestDTO.getPassword());
         return ResponseEntity.ok().body(token);
     }
+
+    @PostMapping("/refreshToken")
+    public ResponseEntity<LoginResponseToken> refreshToken(@RequestBody RefreshRequestDTO refreshRequestDTO) {
+        LoginResponseToken token = userService.refresh(refreshRequestDTO.getRefreshToken());
+        return ResponseEntity.ok().body(token);
+    }
+
 }

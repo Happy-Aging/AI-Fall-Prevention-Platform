@@ -1,18 +1,21 @@
 package happyaging.server.service;
 
 import happyaging.server.domain.User;
+import happyaging.server.dto.LoginResponseToken;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.ErrorCode;
 import happyaging.server.repository.UserRepository;
 import happyaging.server.utils.JwtUtil;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
@@ -25,7 +28,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("cannot find account"));
+                .orElseThrow(() -> new IllegalArgumentException("cannot find user"));
     }
 
     public String join(String email, String password, String nickname) {
@@ -49,7 +52,7 @@ public class UserService {
         return "SUCCESS";
     }
 
-    public String login(String email, String password) {
+    public LoginResponseToken login(String email, String password) {
         // useremail 없음
         User selectedUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "이 없습니다."));
@@ -58,6 +61,16 @@ public class UserService {
         if (!encoder.matches(password, selectedUser.getPassword())) {
             throw new AppException(ErrorCode.INVALID_PASSWORD, "패스워드를 잘못 입력 했습니다");
         }
+
+        return JwtUtil.createJwt(selectedUser.getEmail(), key, expireTimeMs);
+    }
+
+    public LoginResponseToken refresh(String refreshToken) {
+        log.info("refresh token: {}", refreshToken);
+        String email = JwtUtil.getUserEmail(refreshToken, key);
+        log.info("email: {}", email);
+        User selectedUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "이 없습니다."));
 
         return JwtUtil.createJwt(selectedUser.getEmail(), key, expireTimeMs);
     }

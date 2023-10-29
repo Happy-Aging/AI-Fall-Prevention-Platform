@@ -1,4 +1,4 @@
-package happyaging.server.dto;
+package happyaging.server.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

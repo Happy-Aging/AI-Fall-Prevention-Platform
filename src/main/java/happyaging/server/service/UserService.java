@@ -1,7 +1,7 @@
 package happyaging.server.service;
 
 import happyaging.server.domain.User;
-import happyaging.server.dto.LoginResponseToken;
+import happyaging.server.dto.user.LoginResponseToken;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.ErrorCode;
 import happyaging.server.repository.UserRepository;

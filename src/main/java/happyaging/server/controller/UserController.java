@@ -1,9 +1,9 @@
 package happyaging.server.controller;
 
-import happyaging.server.dto.LoginResponseToken;
-import happyaging.server.dto.RefreshRequestDTO;
-import happyaging.server.dto.UserJoinRequestDTO;
-import happyaging.server.dto.UserLoginRequestDTO;
+import happyaging.server.dto.user.LoginResponseToken;
+import happyaging.server.dto.user.RefreshRequestDTO;
+import happyaging.server.dto.user.UserJoinRequestDTO;
+import happyaging.server.dto.user.UserLoginRequestDTO;
 import happyaging.server.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

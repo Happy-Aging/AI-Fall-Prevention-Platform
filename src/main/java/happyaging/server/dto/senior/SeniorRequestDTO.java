@@ -1,4 +1,4 @@
-package happyaging.server.dto;
+package happyaging.server.dto.senior;
 
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;

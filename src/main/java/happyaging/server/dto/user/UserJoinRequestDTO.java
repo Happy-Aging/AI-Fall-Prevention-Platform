@@ -1,4 +1,4 @@
-package happyaging.server.dto;
+package happyaging.server.dto.user;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

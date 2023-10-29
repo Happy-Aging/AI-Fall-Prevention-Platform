@@ -18,7 +18,7 @@ public class SeniorRequestDTO {
     @NotNull(message = "주소정보는 필수입니다.")
     private String address;
 
-    @NotNull(message = "주겨형태는 필수입니다.")
+    @NotNull(message = "주거형태는 필수입니다.")
     private String residence;
 
     private String profile;

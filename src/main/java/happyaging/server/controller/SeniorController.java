@@ -11,8 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,4 +52,23 @@ public class SeniorController {
         return seniorService.getSeniorList(user);
     }
 
+    @PutMapping("/{seniorId}")
+    public ResponseEntity<Object> updateSenior(Authentication authentication,
+                                               @PathVariable Long seniorId,
+                                               @RequestBody @Valid SeniorRequestDTO seniorRequestDTO) {
+        if (authentication == null) {
+            return null;
+        }
+        seniorService.updateSenior(seniorId, seniorRequestDTO);
+        return new ResponseEntity<>("update senior success!", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{seniorId}")
+    public ResponseEntity<Object> deleteSenior(Authentication authentication, @PathVariable Long seniorId) {
+        if (authentication == null) {
+            return null;
+        }
+        seniorService.deleteSenior(seniorId);
+        return new ResponseEntity<>("delete senior success!", HttpStatus.OK);
+    }
 }

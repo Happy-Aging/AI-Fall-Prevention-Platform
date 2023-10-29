@@ -69,4 +69,18 @@ public class SeniorService {
                 .max(Comparator.comparing(Survey::getDate))
                 .orElse(null);
     }
+
+    public void updateSenior(Long seniorId, SeniorRequestDTO seniorRequestDTO) {
+        Senior existingSenior = seniorRepository.findById(seniorId)
+                .orElseThrow(() -> new IllegalArgumentException("cannot find senior"));
+
+        existingSenior.update(seniorRequestDTO);
+        seniorRepository.save(existingSenior);
+    }
+
+    public void deleteSenior(Long seniorId) {
+        Senior existingSenior = seniorRepository.findById(seniorId)
+                .orElseThrow(() -> new IllegalArgumentException("cannot find senior"));
+        seniorRepository.delete(existingSenior);
+    }
 }

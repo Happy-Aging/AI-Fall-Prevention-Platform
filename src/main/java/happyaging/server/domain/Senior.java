@@ -1,5 +1,6 @@
 package happyaging.server.domain;
 
+import happyaging.server.dto.senior.SeniorRequestDTO;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -57,4 +58,13 @@ public class Senior {
 
     @OneToMany(mappedBy = "senior", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Survey> surveyList = new ArrayList<>();
+
+    public void update(SeniorRequestDTO seniorRequestDTO) {
+        name = seniorRequestDTO.getName();
+        sex = seniorRequestDTO.getSex();
+        birth = seniorRequestDTO.getBirth();
+        residence = seniorRequestDTO.getResidence();
+        address = seniorRequestDTO.getAddress();
+        profile = seniorRequestDTO.getProfile();
+    }
 }

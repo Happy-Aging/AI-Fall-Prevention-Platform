@@ -1,6 +1,7 @@
 package happyaging.server.service;
 
 import happyaging.server.domain.Response;
+import happyaging.server.domain.Senior;
 import happyaging.server.domain.Survey;
 import happyaging.server.dto.response.ResponseDTO;
 import happyaging.server.dto.response.ResponseListDTO;
@@ -13,13 +14,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ResponseService {
+    private final SurveyService surveyService;
+    private final ResultService resultService;
     private final ResponseRepository responseRepository;
 
-    @Transactional(readOnly = true)
-    public void saveSurveyResponse(Survey survey, ResponseListDTO responseListDTO) {
+
+    @Transactional
+    public void saveSurveyResponse(Senior senior, ResponseListDTO responseListDTO) {
+        Survey survey = surveyService.createSurvey(senior);
         List<Response> responses = responseListDTO.getResponseDTOS().stream()
                 .map(responseDTO -> createResponse(survey, responseDTO))
                 .toList();
+
+        //TODO 응답을 AI 서버로 보내서 보고서 생성 (필요한 정보가 더 있을 수도 있음)
+        resultService.createResult(responseListDTO);
+        
         responseRepository.saveAll(responses);
     }
 

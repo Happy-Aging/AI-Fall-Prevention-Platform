@@ -1,7 +1,6 @@
 package happyaging.server.controller;
 
 import happyaging.server.domain.Senior;
-import happyaging.server.domain.Survey;
 import happyaging.server.dto.response.ResponseListDTO;
 import happyaging.server.service.ResponseService;
 import happyaging.server.service.SeniorService;
@@ -33,9 +32,8 @@ public class ResponseController {
             return null;
         }
         Senior senior = seniorService.findSenior(seniorId);
-        Survey survey = surveyService.createSurvey(senior);
 
-        responseService.saveSurveyResponse(survey, responseListDTO);
+        responseService.saveSurveyResponse(senior, responseListDTO);
         return new ResponseEntity<>("save response success!", HttpStatus.CREATED);
     }
 }

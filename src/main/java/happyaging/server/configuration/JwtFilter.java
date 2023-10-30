@@ -39,7 +39,10 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = authorization.split(" ")[1];
         // Token expired 됐는지 확인
         if (JwtUtil.isExpired(token, secretKey)) {
+            response.setCharacterEncoding("UTF-8");  // 인코딩을 UTF-8로 설정
+            response.setContentType("text/plain; charset=UTF-8");  // Content-Type 설정
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("토큰이 만료되었습니다.");
             return;
         }
 

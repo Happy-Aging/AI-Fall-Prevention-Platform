@@ -1,6 +1,8 @@
 package happyaging.server.utils;
 
 import happyaging.server.dto.user.LoginResponseToken;
+import happyaging.server.exception.AppException;
+import happyaging.server.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -12,8 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtUtil {
 
     public static String getUserEmail(String token, String secretKey) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
-                .getBody().get("userEmail", String.class);
+        try {
+            return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
+                    .getBody().get("userEmail", String.class);
+        } catch (ExpiredJwtException e) {
+            throw new AppException(ErrorCode.TOKEN_EXPIRED);
+        }
+
     }
 
     public static String getTokenType(String token, String secretKey) {

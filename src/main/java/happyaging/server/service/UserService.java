@@ -35,7 +35,7 @@ public class UserService {
         // email 중복 체크
         userRepository.findByEmail(email)
                 .ifPresent(user -> {
-                    throw new AppException(ErrorCode.EMAIl_DUPLICATED, email + "는 이미 있습니다.");
+                    throw new AppException(ErrorCode.EMAIl_DUPLICATED);
                 });
 
         LocalDate today = LocalDate.now();
@@ -55,11 +55,11 @@ public class UserService {
     public LoginResponseToken login(String email, String password) {
         // useremail 없음
         User selectedUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "이 없습니다."));
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
 
         // password 틀림
         if (!encoder.matches(password, selectedUser.getPassword())) {
-            throw new AppException(ErrorCode.INVALID_PASSWORD, "패스워드를 잘못 입력 했습니다");
+            throw new AppException(ErrorCode.INVALID_PASSWORD);
         }
 
         return JwtUtil.createJwt(selectedUser.getEmail(), key, expireTimeMs);
@@ -70,7 +70,7 @@ public class UserService {
         String email = JwtUtil.getUserEmail(refreshToken, key);
         log.info("email: {}", email);
         User selectedUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND, email + "이 없습니다."));
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
 
         return JwtUtil.createJwt(selectedUser.getEmail(), key, expireTimeMs);
     }

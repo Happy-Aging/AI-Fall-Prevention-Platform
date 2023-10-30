@@ -40,6 +40,7 @@ public class SeniorService {
         return seniorList.stream()
                 .map(senior -> {
                     return SeniorResponseDTO.builder()
+                            .id(senior.getId())
                             .name(senior.getName())
                             .age(calculateAge(senior.getBirth()))
                             .address((senior.getAddress()))
@@ -50,7 +51,13 @@ public class SeniorService {
                 .toList();
     }
 
-    private int calculateAge(LocalDate birth) {
+    @Transactional(readOnly = true)
+    public Senior findSenior(Long seniorId) {
+        return seniorRepository.findById(seniorId)
+                .orElseThrow(() -> new IllegalArgumentException("cannot find senior"));
+    }
+
+    private Integer calculateAge(LocalDate birth) {
         LocalDate today = LocalDate.now();
         Period period = Period.between(birth, today);
         return period.getYears();
@@ -59,6 +66,9 @@ public class SeniorService {
     private Integer getRank(Senior senior) {
         Survey mostRecentSurvey = getMostRecentSurvey(senior);
         if (mostRecentSurvey == null) {
+            return null;
+        }
+        if (mostRecentSurvey.getResult() == null) {
             return null;
         }
         return mostRecentSurvey.getResult().getRank();

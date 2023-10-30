@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
@@ -17,6 +18,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @AllArgsConstructor
 @DynamicUpdate
 @Entity
+@Builder
 @Getter
 @Table(name = "response")
 public class Response {
@@ -26,7 +28,7 @@ public class Response {
     private Long id;
 
     @Column(name = "question_id", nullable = false)
-    private Integer questionId;
+    private Long questionId;
 
     @Column(nullable = false)
     private String response;

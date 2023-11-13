@@ -1,6 +1,7 @@
 package happyaging.server.service;
 
 import happyaging.server.domain.Response;
+import happyaging.server.domain.Senior;
 import happyaging.server.domain.Survey;
 import happyaging.server.dto.response.ResponseDTO;
 import happyaging.server.dto.response.ResponseListDTO;
@@ -24,28 +25,25 @@ public class ResponseService {
 //                .map(responseDTO -> createResponse(survey, responseDTO))
 //                .toList();
 //
-//        //TODO 응답을 AI 서버로 보내서 보고서 생성 (필요한 정보가 더 있을 수도 있음)
 //        resultService.createResult(responseListDTO);
 //
 //        responseRepository.saveAll(responses);
 //    }
 
     @Transactional
-    public void saveSurveyResponse(ResponseListDTO responseListDTO) {
-        Survey survey = surveyService.createSurvey();
+    public void saveSurveyResponse(Senior senior, ResponseListDTO responseListDTO) {
+        Survey survey = surveyService.createSurvey(senior);
         List<Response> responses = responseListDTO.getResponseDTOS().stream()
                 .map(responseDTO -> createResponse(survey, responseDTO))
                 .toList();
 
-        //TODO 응답을 AI 서버로 보내서 보고서 생성 (필요한 정보가 더 있을 수도 있음)
-        resultService.createResult(responseListDTO);
-
+        resultService.createResult(responses);
         responseRepository.saveAll(responses);
     }
 
     private Response createResponse(Survey survey, ResponseDTO responseDTO) {
         return Response.builder()
-                .questionId(responseDTO.getQuestionId())
+                .questionNumber(responseDTO.getQuestionNumber())
                 .response(responseDTO.getResponse())
                 .survey(survey)
                 .build();

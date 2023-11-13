@@ -1,5 +1,6 @@
 package happyaging.server.controller;
 
+import happyaging.server.domain.Senior;
 import happyaging.server.dto.response.ResponseListDTO;
 import happyaging.server.service.ResponseService;
 import happyaging.server.service.SeniorService;
@@ -8,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,9 +36,11 @@ public class ResponseController {
 //    }
 
 
-    @PostMapping()
-    public ResponseEntity<Object> saveSurveyResponse(@RequestBody @Valid ResponseListDTO responseListDTO) {
-        responseService.saveSurveyResponse(responseListDTO);
+    @PostMapping("/{seniorId}")
+    public ResponseEntity<Object> saveSurveyResponse(@PathVariable Long seniorId,
+                                                     @RequestBody @Valid ResponseListDTO responseListDTO) {
+        Senior senior = seniorService.findSenior(seniorId);
+        responseService.saveSurveyResponse(senior, responseListDTO);
         return new ResponseEntity<>("save response success!", HttpStatus.CREATED);
     }
 }

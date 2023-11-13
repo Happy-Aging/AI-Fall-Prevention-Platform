@@ -27,19 +27,24 @@ public class SeniorController {
     private final UserService userService;
     private final SeniorService seniorService;
 
+//    @PostMapping
+//    public ResponseEntity<Object> createSenior(Authentication authentication,
+//                                               @RequestBody @Valid SeniorRequestDTO seniorRequestDTO) {
+//        if (authentication == null) {
+//            return null;
+//        }
+//        String email = authentication.getName();
+//
+//        System.out.println(email + "님 반가워요");
+//
+//        User user = userService.getUserByEmail(email);
+//        seniorService.createSenior(user, seniorRequestDTO);
+//        return new ResponseEntity<>("create senior success!", HttpStatus.CREATED);
+//    }
+
     @PostMapping
-    public ResponseEntity<Object> createSenior(Authentication authentication,
-                                               @RequestBody @Valid SeniorRequestDTO seniorRequestDTO) {
-        if (authentication == null) {
-            return null;
-        }
-        String email = authentication.getName();
-
-        System.out.println(email + "님 반가워요");
-
-        User user = userService.getUserByEmail(email);
-        seniorService.createSenior(user, seniorRequestDTO);
-        return new ResponseEntity<>("create senior success!", HttpStatus.CREATED);
+    public SeniorResponseDTO createSenior(@RequestBody @Valid SeniorRequestDTO seniorRequestDTO) {
+        return seniorService.createSenior(seniorRequestDTO);
     }
 
     @GetMapping("/list")

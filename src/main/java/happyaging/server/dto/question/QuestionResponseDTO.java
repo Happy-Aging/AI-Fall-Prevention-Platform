@@ -6,7 +6,6 @@ import lombok.Getter;
 @Builder
 @Getter
 public class QuestionResponseDTO {
-    private Long id;
     private String number;
     private String question;
     private String type;

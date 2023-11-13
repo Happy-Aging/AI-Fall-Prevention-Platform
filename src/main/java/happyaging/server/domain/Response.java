@@ -27,8 +27,8 @@ public class Response {
     @Column(name = "response_id")
     private Long id;
 
-    @Column(name = "question_id", nullable = false)
-    private Long questionId;
+    @Column(name = "question_number", nullable = false)
+    private String questionNumber;
 
     @Column(nullable = false)
     private String response;

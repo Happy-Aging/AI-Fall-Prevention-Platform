@@ -3,7 +3,7 @@ package happyaging.server.service;
 import happyaging.server.domain.Result;
 import happyaging.server.domain.Senior;
 import happyaging.server.domain.Survey;
-import happyaging.server.dto.survey.SurveyResponseDTO;
+import happyaging.server.dto.result.ResultResponseDTO;
 import happyaging.server.repository.SurveyRepository;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -28,17 +28,17 @@ public class SurveyService {
 //    }
 
     @Transactional
-    public Survey createSurvey() {
+    public Survey createSurvey(Senior senior) {
         LocalDate today = LocalDate.now();
         Survey survey = Survey.builder()
                 .date(today)
-                .senior(null)
+                .senior(senior)
                 .build();
         return surveyRepository.save(survey);
     }
 
     @Transactional(readOnly = true)
-    public List<SurveyResponseDTO> getSeniorServeyList(Senior existingSenior) {
+    public List<ResultResponseDTO> getSeniorServeyList(Senior existingSenior) {
         List<Survey> surveyList = existingSenior.getSurveyList();
         if (surveyList.isEmpty()) {
             return Collections.emptyList();
@@ -46,9 +46,9 @@ public class SurveyService {
         return surveyList.stream().map(this::getSeniorSurvey).toList();
     }
 
-    private SurveyResponseDTO getSeniorSurvey(Survey survey) {
+    private ResultResponseDTO getSeniorSurvey(Survey survey) {
         Result result = survey.getResult();
-        return SurveyResponseDTO.builder()
+        return ResultResponseDTO.builder()
                 .resultId(result.getId())
                 .date(survey.getDate())
                 .rank(result.getRank())

@@ -1,7 +1,7 @@
 package happyaging.server.controller;
 
 import happyaging.server.domain.Senior;
-import happyaging.server.dto.survey.SurveyResponseDTO;
+import happyaging.server.dto.result.ResultResponseDTO;
 import happyaging.server.service.SeniorService;
 import happyaging.server.service.SurveyService;
 import java.util.List;
@@ -20,7 +20,7 @@ public class SurveyController {
     private final SurveyService surveyService;
 
     @GetMapping("/list/{seniorId}")
-    public List<SurveyResponseDTO> getSeniorSurveyList(Authentication authentication,
+    public List<ResultResponseDTO> getSeniorSurveyList(Authentication authentication,
                                                        @PathVariable Long seniorId) {
         if (authentication == null) {
             return null;

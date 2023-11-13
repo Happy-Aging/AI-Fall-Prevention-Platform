@@ -28,7 +28,6 @@ public class QuestionService {
 
     private QuestionResponseDTO createQuestionResponseDTO(Question question) {
         return QuestionResponseDTO.builder()
-                .id(question.getId())
                 .number(question.getNumber())
                 .question(question.getQuestion())
                 .type(question.getType())

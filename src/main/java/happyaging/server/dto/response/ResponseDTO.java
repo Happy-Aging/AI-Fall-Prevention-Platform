@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public class ResponseDTO {
     @NotNull(message = "questionId는 필수입니다.")
-    private Long questionId;
+    private String questionNumber;
 
     @NotNull(message = "response는 필수입니다.")
     private String response;

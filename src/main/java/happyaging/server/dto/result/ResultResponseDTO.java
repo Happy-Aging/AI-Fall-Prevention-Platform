@@ -10,6 +10,5 @@ public class ResultResponseDTO {
     private Long resultId;
     private LocalDate date;
     private Integer rank;
-    private Double score;
     private String summary;
 }

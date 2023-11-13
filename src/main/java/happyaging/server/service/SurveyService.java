@@ -52,7 +52,6 @@ public class SurveyService {
                 .resultId(result.getId())
                 .date(survey.getDate())
                 .rank(result.getRank())
-                .score(result.getTotalScore())
                 .summary(result.getSummary())
                 .build();
     }

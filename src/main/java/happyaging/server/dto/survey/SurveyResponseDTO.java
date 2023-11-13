@@ -8,5 +8,5 @@ import lombok.Getter;
 @Getter
 @Builder
 public class SurveyResponseDTO {
-    private Map<String, QuestionAndAnswerDTO> responses;
+    private Map<String, QuestionAndAnswerDTO> data;
 }

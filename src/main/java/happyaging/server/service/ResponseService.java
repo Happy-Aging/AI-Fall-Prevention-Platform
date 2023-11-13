@@ -5,6 +5,7 @@ import happyaging.server.domain.Senior;
 import happyaging.server.domain.Survey;
 import happyaging.server.dto.response.ResponseDTO;
 import happyaging.server.dto.response.ResponseListDTO;
+import happyaging.server.dto.result.ResultResponseDTO;
 import happyaging.server.repository.ResponseRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -31,14 +32,13 @@ public class ResponseService {
 //    }
 
     @Transactional
-    public void saveSurveyResponse(Senior senior, ResponseListDTO responseListDTO) {
+    public ResultResponseDTO saveSurveyResponse(Senior senior, ResponseListDTO responseListDTO) {
         Survey survey = surveyService.createSurvey(senior);
         List<Response> responses = responseListDTO.getResponseDTOS().stream()
                 .map(responseDTO -> createResponse(survey, responseDTO))
                 .toList();
-
-        resultService.createResult(responses);
         responseRepository.saveAll(responses);
+        return resultService.createResult(survey, responses);
     }
 
     private Response createResponse(Survey survey, ResponseDTO responseDTO) {

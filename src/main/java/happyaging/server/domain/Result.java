@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
@@ -17,6 +18,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicUpdate
+@Builder
 @Entity
 @Getter
 @Table(name = "result")
@@ -28,9 +30,6 @@ public class Result {
 
     @Column(nullable = false)
     private Integer rank;
-
-    @Column(name = "total_score", nullable = false)
-    private Double totalScore;
 
     @Column(nullable = false)
     private String summary;

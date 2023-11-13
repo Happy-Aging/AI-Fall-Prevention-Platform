@@ -1,8 +1,15 @@
 package happyaging.server.service;
 
 import happyaging.server.domain.Response;
+import happyaging.server.domain.Result;
+import happyaging.server.domain.Survey;
+import happyaging.server.dto.result.ResultResponseDTO;
+import happyaging.server.dto.survey.QuestionAndAnswerDTO;
+import happyaging.server.dto.survey.SurveyResponseDTO;
 import happyaging.server.repository.ResultRepository;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,13 +18,54 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ResultService {
     private final ResultRepository resultRepository;
+    private final QuestionService questionService;
 
+    //TODO total score를 계산하는 기능
+    //TODO rank를 계산하는 기능
     @Transactional
-    public void createResult(List<Response> responses) {
-        //TODO 응답 결과와 응답 질문을 하나로 합치는 기능
-        //TODO 합친것에 번호를 매기는 기능
-        //TODO total score를 계산하는 기능
-        //TODO rank를 계산하는 기능
-        //TODO 인공지능 서버에 데이터를 보내고 파일 저장 위치와 summary를 받는 기능
+    public ResultResponseDTO createResult(Survey survey, List<Response> responses) {
+        //TODO 원래는 rank, summary, report경로 3개를 받아야함.
+        String reportSavePath = createReport(createDataForReport(responses));
+        Result result = Result.builder()
+                .rank(1)
+                .summary("test")
+                .report(reportSavePath)
+                .survey(survey)
+                .build();
+        resultRepository.save(result);
+        return createResultResponseDTO(result, survey);
+    }
+
+    private ResultResponseDTO createResultResponseDTO(Result result, Survey survey) {
+        return ResultResponseDTO.builder()
+                .resultId(result.getId())
+                .date(survey.getDate())
+                .rank(result.getRank())
+                .summary(result.getSummary())
+                .build();
+    }
+
+    private String createReport(SurveyResponseDTO dataForReport) {
+        //TODO dto를 보내고 리턴값을 그대로 리턴
+        return "hello";
+    }
+
+    private SurveyResponseDTO createDataForReport(List<Response> responses) {
+        Map<String, QuestionAndAnswerDTO> surveyResponse = new LinkedHashMap<>();
+        responses.forEach(response -> createSurveyResponseDTO(response, surveyResponse));
+        return SurveyResponseDTO.builder()
+                .data(surveyResponse)
+                .build();
+    }
+
+    private void createSurveyResponseDTO(Response response, Map<String, QuestionAndAnswerDTO> surveyResponse) {
+        surveyResponse.put(response.getQuestionNumber(), createQuestionAndAnswerDTO(response));
+    }
+
+    private QuestionAndAnswerDTO createQuestionAndAnswerDTO(Response response) {
+        return QuestionAndAnswerDTO.builder()
+                .question(questionService.findByNumber(response.getQuestionNumber()))
+                .answer(response.getResponse())
+                .build();
     }
 }

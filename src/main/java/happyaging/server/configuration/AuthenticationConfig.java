@@ -28,7 +28,8 @@ public class AuthenticationConfig {
                 .csrf().disable()
                 .cors().and()
                 .authorizeHttpRequests()
-                .requestMatchers("/user/join", "/user/login", "/user/refreshToken", "/response/{seniorId}", "/senior")
+                .requestMatchers("/user/join", "/user/login", "/user/refreshToken", "/response/{seniorId}", "/senior",
+                        "/question")
                 .permitAll()
                 .requestMatchers("/**").authenticated()
                 .and()

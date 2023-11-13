@@ -29,7 +29,7 @@ public class AuthenticationConfig {
                 .cors().and()
                 .authorizeHttpRequests()
                 .requestMatchers("/user/join", "/user/login", "/user/refreshToken", "/response/{seniorId}", "/senior",
-                        "/question")
+                        "/question", "/survey/{resultId}/download")
                 .permitAll()
                 .requestMatchers("/**").authenticated()
                 .and()

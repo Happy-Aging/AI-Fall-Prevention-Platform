@@ -17,12 +17,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class SurveyService {
     private final SurveyRepository surveyRepository;
 
+//    @Transactional
+//    public Survey createSurvey(Senior senior) {
+//        LocalDate today = LocalDate.now();
+//        Survey survey = Survey.builder()
+//                .date(today)
+//                .senior(senior)
+//                .build();
+//        return surveyRepository.save(survey);
+//    }
+
     @Transactional
-    public Survey createSurvey(Senior senior) {
+    public Survey createSurvey() {
         LocalDate today = LocalDate.now();
         Survey survey = Survey.builder()
                 .date(today)
-                .senior(senior)
+                .senior(null)
                 .build();
         return surveyRepository.save(survey);
     }

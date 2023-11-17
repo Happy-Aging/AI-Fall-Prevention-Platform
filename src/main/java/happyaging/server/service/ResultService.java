@@ -1,5 +1,6 @@
 package happyaging.server.service;
 
+import com.google.gson.Gson;
 import happyaging.server.domain.Response;
 import happyaging.server.domain.Result;
 import happyaging.server.domain.Survey;
@@ -7,6 +8,13 @@ import happyaging.server.dto.result.ResultResponseDTO;
 import happyaging.server.dto.survey.QuestionAndAnswerDTO;
 import happyaging.server.dto.survey.SurveyResponseDTO;
 import happyaging.server.repository.ResultRepository;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
@@ -26,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ResultService {
     private final ResultRepository resultRepository;
     private final QuestionService questionService;
+    private final RankCalculateService rankCalculateService;
 
     //TODO total score를 계산하는 기능
     //TODO rank를 계산하는 기능
@@ -38,7 +47,7 @@ public class ResultService {
 
     @Transactional
     public ResultResponseDTO createResult(Survey survey, List<Response> responses) {
-        //TODO 원래는 rank, summary, report경로 3개를 받아야함.
+        //TODO 원래는 summary, report 경로 이렇게 2개를 받아야함.
         String reportSavePath = createReport(createDataForReport(responses));
         Result result = Result.builder()
                 .rank(1)
@@ -72,18 +81,41 @@ public class ResultService {
         }
     }
 
-    private ResultResponseDTO createResultResponseDTO(Result result, Survey survey) {
-        return ResultResponseDTO.builder()
-                .resultId(result.getId())
-                .date(survey.getDate())
-                .rank(result.getRank())
-                .summary(result.getSummary())
-                .build();
-    }
-
     private String createReport(SurveyResponseDTO dataForReport) {
-        //TODO dto를 보내고 리턴값을 그대로 리턴
-        return "hello";
+        HttpURLConnection con = null;
+        try {
+            URL url = new URL("http://localhost:8000/makeReport");
+            con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json; utf-8");
+            con.setRequestProperty("Accept", "application/json");
+            con.setDoOutput(true);
+
+            Gson gson = new Gson();
+            String jsonInputString = gson.toJson(dataForReport);
+            System.out.println(jsonInputString);
+
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            StringBuilder response = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+            }
+            return response.toString();
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        } finally {
+            if (con != null) {
+                con.disconnect();
+            }
+        }
     }
 
     private SurveyResponseDTO createDataForReport(List<Response> responses) {
@@ -102,6 +134,15 @@ public class ResultService {
         return QuestionAndAnswerDTO.builder()
                 .question(questionService.findByNumber(response.getQuestionNumber()))
                 .answer(response.getResponse())
+                .build();
+    }
+
+    private ResultResponseDTO createResultResponseDTO(Result result, Survey survey) {
+        return ResultResponseDTO.builder()
+                .resultId(result.getId())
+                .date(survey.getDate())
+                .rank(result.getRank())
+                .summary(result.getSummary())
                 .build();
     }
 }

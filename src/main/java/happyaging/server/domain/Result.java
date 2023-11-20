@@ -34,7 +34,7 @@ public class Result {
     @Column(nullable = false)
     private Double totalScore;
 
-    @Column(nullable = false)
+    @Column(length = 500, nullable = false)
     private String summary;
 
     @Column(nullable = false)

@@ -5,6 +5,7 @@ import happyaging.server.domain.Response;
 import happyaging.server.domain.ResponseScore;
 import happyaging.server.domain.Result;
 import happyaging.server.domain.Survey;
+import happyaging.server.dto.report.ReportResponseDTO;
 import happyaging.server.dto.result.ResultResponseDTO;
 import happyaging.server.dto.survey.QuestionAndAnswerDTO;
 import happyaging.server.dto.survey.SurveyResponseDTO;
@@ -33,11 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ResultService {
+    private static final Gson gson = new Gson();
     private final ResultRepository resultRepository;
     private final QuestionService questionService;
-
-    //TODO total score를 계산하는 기능
-    //TODO rank를 계산하는 기능
 
     @Transactional(readOnly = true)
     public Result findResult(Long resultId) {
@@ -47,13 +46,15 @@ public class ResultService {
 
     @Transactional
     public ResultResponseDTO createResult(Survey survey, List<Response> responses) {
-        //TODO 원래는 summary, report 경로 이렇게 2개를 받아야함.
         SurveyResponseDTO surveyResponseDTO = createDataForReport(survey.getSenior().getName(), responses);
+        ReportResponseDTO reportResponseDTO = createReport(surveyResponseDTO);
+        System.out.println(reportResponseDTO.getSummary());
+        System.out.println(reportResponseDTO.getSummary().length());
         Result result = Result.builder()
                 .rank(surveyResponseDTO.getRank())
                 .totalScore(surveyResponseDTO.getTotalScore())
-                .summary("test")
-                .report("hello")
+                .summary(reportResponseDTO.getSummary())
+                .report(reportResponseDTO.getUrl())
                 .survey(survey)
                 .build();
         resultRepository.save(result);
@@ -82,7 +83,7 @@ public class ResultService {
         }
     }
 
-    private String createReport(SurveyResponseDTO dataForReport) {
+    private ReportResponseDTO createReport(SurveyResponseDTO dataForReport) {
         HttpURLConnection con = null;
         try {
             URL url = new URL("http://localhost:8000/makeReport");
@@ -92,7 +93,6 @@ public class ResultService {
             con.setRequestProperty("Accept", "application/json");
             con.setDoOutput(true);
 
-            Gson gson = new Gson();
             String jsonInputString = gson.toJson(dataForReport);
             System.out.println(jsonInputString);
 
@@ -101,15 +101,15 @@ public class ResultService {
                 os.write(input, 0, input.length);
             }
 
-            StringBuilder response = new StringBuilder();
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+                StringBuilder response = new StringBuilder();
                 String responseLine;
                 while ((responseLine = br.readLine()) != null) {
                     response.append(responseLine.trim());
                 }
+                return gson.fromJson(response.toString(), ReportResponseDTO.class);
             }
-            return response.toString();
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         } catch (IllegalArgumentException e) {
@@ -129,6 +129,7 @@ public class ResultService {
             totalScore *= ResponseScore.getScore(response.getQuestionNumber(), response.getResponse());
             createSurveyResponseDTO(response, surveyResponse);
         }
+        totalScore = Math.round(totalScore * 1000.0) / 1000.0;
         return SurveyResponseDTO.builder()
                 .name(name)
                 .rank(ResponseScore.calculateRank(totalScore))

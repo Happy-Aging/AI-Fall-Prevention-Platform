@@ -1,9 +1,8 @@
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-      #    url:
-    #      jdbc:mariadb://maraidb-happyaging.c9miszrbndai.ap-northeast-2.rds.amazonaws.com:3306/happyaging?useUnicode=true&characterEncoding=UTF-8
-    url: jdbc:mariadb://localhost:3306/happyaging
+    url: jdbc:mariadb://maraidb-happyaging.c9miszrbndai.ap-northeast-2.rds.amazonaws.com:3306/happyaging?useUnicode=true&characterEncoding=UTF-8
+  #    url: jdbc:mariadb://localhost:3306/happyaging
   jpa:
     hibernate:
       database-platform: org.hibernate.dialect.MariaDB106Dialect

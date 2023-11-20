@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -66,5 +67,11 @@ public class Senior {
         residence = seniorRequestDTO.getResidence();
         address = seniorRequestDTO.getAddress();
         profile = seniorRequestDTO.getProfile();
+    }
+
+    public void updateSeniorInfo(String sex, String residence, String birth) {
+        this.sex = sex;
+        this.residence = residence;
+        this.birth = LocalDate.parse(birth + "-01-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 }

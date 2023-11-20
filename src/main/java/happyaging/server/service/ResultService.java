@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import happyaging.server.domain.Response;
 import happyaging.server.domain.ResponseScore;
 import happyaging.server.domain.Result;
+import happyaging.server.domain.Senior;
 import happyaging.server.domain.Survey;
 import happyaging.server.dto.report.ReportResponseDTO;
 import happyaging.server.dto.result.ResultResponseDTO;
@@ -47,9 +48,8 @@ public class ResultService {
     @Transactional
     public ResultResponseDTO createResult(Survey survey, List<Response> responses) {
         SurveyResponseDTO surveyResponseDTO = createDataForReport(survey.getSenior().getName(), responses);
+        updateSeniorInfo(survey.getSenior(), surveyResponseDTO);
         ReportResponseDTO reportResponseDTO = createReport(surveyResponseDTO);
-        System.out.println(reportResponseDTO.getSummary());
-        System.out.println(reportResponseDTO.getSummary().length());
         Result result = Result.builder()
                 .rank(surveyResponseDTO.getRank())
                 .totalScore(surveyResponseDTO.getTotalScore())
@@ -156,5 +156,12 @@ public class ResultService {
                 .rank(result.getRank())
                 .summary(result.getSummary())
                 .build();
+    }
+
+    private void updateSeniorInfo(Senior senior, SurveyResponseDTO surveyResponseDTO) {
+        String sex = surveyResponseDTO.getData().get("1").getAnswer();
+        String birth = surveyResponseDTO.getData().get("2").getAnswer().substring(0, 4);
+        String residence = surveyResponseDTO.getData().get("4").getAnswer();
+        senior.updateSeniorInfo(sex, residence, birth);
     }
 }

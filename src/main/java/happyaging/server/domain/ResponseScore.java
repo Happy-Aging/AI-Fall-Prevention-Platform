@@ -63,7 +63,7 @@ public enum ResponseScore {
     RESPONSE_7_3("7-2", "그렇다", 0.8872),
     RESPONSE_7_4("7-2", "아니다", 1.0),
     RESPONSE_7_5("7-3", "그렇다", 1.0),
-    RESPONSE_7_6("7-3", "아니다", 1.1117),
+    RESPONSE_7_6("7-3", "아니다", 1.0408),
     RESPONSE_7_7("7-4", "그렇다", 1.0),
     RESPONSE_7_8("7-4", "아니다", 1.1117),
     RESPONSE_7_9("7-5", "그렇다", 0.6897),
@@ -142,5 +142,23 @@ public enum ResponseScore {
         }
         return 1.0; // 기본 점수
     }
+
+
+    public static Integer calculateRank(double totalScore) {
+        if (totalScore < 0.611) {
+            return 1;
+        }
+        if (totalScore < 0.870) {
+            return 2;
+        }
+        if (totalScore < 1.085) {
+            return 3;
+        }
+        if (totalScore < 1.270) {
+            return 4;
+        }
+        return 5;
+    }
+
 }
 

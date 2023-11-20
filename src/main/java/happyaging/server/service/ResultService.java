@@ -129,10 +129,9 @@ public class ResultService {
             totalScore *= ResponseScore.getScore(response.getQuestionNumber(), response.getResponse());
             createSurveyResponseDTO(response, surveyResponse);
         }
-        System.out.println("최종 점수: " + totalScore);
         return SurveyResponseDTO.builder()
                 .name(name)
-                .rank(2)
+                .rank(ResponseScore.calculateRank(totalScore))
                 .totalScore(totalScore)
                 .data(surveyResponse)
                 .build();

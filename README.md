@@ -7,7 +7,8 @@
 <br/>
 
 ### ER-Diagram
-![image](https://github.com/Happy-Aging/AI-Fall-Prevention-Platform/assets/54783290/59905cbd-6fcc-4e6e-b4ec-1cb96565c3b7)
+![image](https://github.com/Gyu-won/AI-Fall-Prevention-Platform_BE/assets/54783290/ea51f721-a153-4275-ab7c-3154b6e1047c)
+
 
 
 <br/>

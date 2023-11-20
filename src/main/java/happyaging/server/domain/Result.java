@@ -32,6 +32,9 @@ public class Result {
     private Integer rank;
 
     @Column(nullable = false)
+    private Double totalScore;
+
+    @Column(nullable = false)
     private String summary;
 
     @Column(nullable = false)

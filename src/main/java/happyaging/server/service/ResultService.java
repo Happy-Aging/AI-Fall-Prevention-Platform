@@ -2,6 +2,7 @@ package happyaging.server.service;
 
 import com.google.gson.Gson;
 import happyaging.server.domain.Response;
+import happyaging.server.domain.ResponseScore;
 import happyaging.server.domain.Result;
 import happyaging.server.domain.Survey;
 import happyaging.server.dto.result.ResultResponseDTO;
@@ -47,11 +48,12 @@ public class ResultService {
     @Transactional
     public ResultResponseDTO createResult(Survey survey, List<Response> responses) {
         //TODO 원래는 summary, report 경로 이렇게 2개를 받아야함.
-        String reportSavePath = createReport(createDataForReport(survey.getSenior().getName(), responses));
+        SurveyResponseDTO surveyResponseDTO = createDataForReport(survey.getSenior().getName(), responses);
         Result result = Result.builder()
-                .rank(1)
+                .rank(surveyResponseDTO.getRank())
+                .totalScore(surveyResponseDTO.getTotalScore())
                 .summary("test")
-                .report(reportSavePath)
+                .report("hello")
                 .survey(survey)
                 .build();
         resultRepository.save(result);
@@ -120,16 +122,18 @@ public class ResultService {
     }
 
     private SurveyResponseDTO createDataForReport(String name, List<Response> responses) {
-//        double totalScore = 1.0;
+        double totalScore = 1.0;
         Map<String, QuestionAndAnswerDTO> surveyResponse = new LinkedHashMap<>();
 
         for (Response response : responses) {
-//            totalScore *= ResponseScore.getScore(response.getQuestionId(), response.getAnswer());
+            totalScore *= ResponseScore.getScore(response.getQuestionNumber(), response.getResponse());
             createSurveyResponseDTO(response, surveyResponse);
         }
-//        System.out.println("최종 점수: " + totalScore);
+        System.out.println("최종 점수: " + totalScore);
         return SurveyResponseDTO.builder()
                 .name(name)
+                .rank(2)
+                .totalScore(totalScore)
                 .data(surveyResponse)
                 .build();
     }

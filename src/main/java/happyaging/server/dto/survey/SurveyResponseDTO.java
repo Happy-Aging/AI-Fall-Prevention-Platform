@@ -10,5 +10,6 @@ import lombok.Getter;
 public class SurveyResponseDTO {
     private String name;
     private Integer rank;
+    private Double totalScore;
     private Map<String, QuestionAndAnswerDTO> data;
 }

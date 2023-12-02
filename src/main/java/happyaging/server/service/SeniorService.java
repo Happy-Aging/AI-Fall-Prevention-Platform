@@ -48,6 +48,7 @@ public class SeniorService {
         return SeniorResponseDTO.builder()
                 .id(senior.getId())
                 .name(senior.getName())
+                .address(senior.getAddress())
                 .build();
     }
 

@@ -17,11 +17,14 @@
 <br/>
 
 ### Sequence Diagram
+
 **Create Senior**
+
 <img width="435" alt="CreateSeniorSequenceDiagram" src="https://github.com/Happy-Aging/AI-Fall-Prevention-Platform/assets/54783290/0c6fb6d2-bd7d-4f64-b642-f7cad698120b">
 
 
 **Submit survey**
+
 <img width="617" alt="SubmitSurveySequenceDiagram" src="https://github.com/Happy-Aging/AI-Fall-Prevention-Platform/assets/54783290/1d7b79be-a613-4e10-8ebb-7db236b804a3">
 
 

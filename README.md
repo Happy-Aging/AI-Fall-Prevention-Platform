@@ -15,6 +15,7 @@
 <img width="839" alt="ClassDiagram" src="https://github.com/Happy-Aging/AI-Fall-Prevention-Platform/assets/54783290/a879dbf3-f86e-4dbe-8f43-416a22f7eea3">
 
 <br/>
+
 ### Sequence Diagram
 **Create Senior**
 <img width="435" alt="CreateSeniorSequenceDiagram" src="https://github.com/Happy-Aging/AI-Fall-Prevention-Platform/assets/54783290/0c6fb6d2-bd7d-4f64-b642-f7cad698120b">

@@ -9,6 +9,11 @@
 ### ER-Diagram
 ![image](https://github.com/Gyu-won/AI-Fall-Prevention-Platform_BE/assets/54783290/ea51f721-a153-4275-ab7c-3154b6e1047c)
 
+<br/>
+
+### Class-Diagram
+<img width="839" alt="ClassDiagram" src="https://github.com/Happy-Aging/AI-Fall-Prevention-Platform/assets/54783290/a879dbf3-f86e-4dbe-8f43-416a22f7eea3">
+
 
 
 <br/>

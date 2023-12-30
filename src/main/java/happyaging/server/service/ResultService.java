@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,14 +65,22 @@ public class ResultService {
     @Transactional(readOnly = true)
     public ResponseEntity<Resource> getReport(Result result) {
         String filePath = result.getReport();
+//        String filePath = "/home/ubuntu/AI_server/CODE/reports/과제08.pdf";
+        System.out.println(filePath);
         try {
             Path file = Paths.get(filePath).normalize();
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists()) {
+                String filename = resource.getFilename();
+                if (filename == null) {
+                    throw new IllegalArgumentException("Filename can not be null");
+                }
+                String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8);
+                String contentDisposition = "attachment; filename*=UTF-8''" + encodedFilename;
+
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_PDF)
-                        .header(HttpHeaders.CONTENT_DISPOSITION,
-                                "attachment; filename=\"" + resource.getFilename() + "\"")
+                        .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
                         .body(resource);
             } else {
                 throw new IllegalArgumentException("cannot find report");

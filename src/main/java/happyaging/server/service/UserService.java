@@ -21,17 +21,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder encoder;
 
-    @Value("${jwt.secret}")
-    private String key;
-    private Long expireTimeMs = 1000 * 60 * 60L;
-
     @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("cannot find user"));
     }
 
-    public String join(String email, String password, String nickname) {
+    public String join(String email, String password, String name) {
         // email 중복 체크
         userRepository.findByEmail(email)
                 .ifPresent(user -> {
@@ -43,8 +39,8 @@ public class UserService {
         User user = User.builder()
                 .email(email)
                 .password(encoder.encode(password))
+                .name(name)
                 .email(email)
-                .nickname(nickname)
                 .createdAt(today)
                 .isManager(false)
                 .build();
@@ -62,16 +58,16 @@ public class UserService {
             throw new AppException(ErrorCode.INVALID_PASSWORD);
         }
 
-        return JwtUtil.createJwt(selectedUser.getEmail(), key, expireTimeMs);
+        return JwtUtil.createJwt(selectedUser.getEmail());
     }
 
     public LoginResponseToken refresh(String refreshToken) {
         log.info("refresh token: {}", refreshToken);
-        String email = JwtUtil.getUserEmail(refreshToken, key);
+        String email = JwtUtil.getUserEmail(refreshToken);
         log.info("email: {}", email);
         User selectedUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
 
-        return JwtUtil.createJwt(selectedUser.getEmail(), key, expireTimeMs);
+        return JwtUtil.createJwt(selectedUser.getEmail());
     }
 }

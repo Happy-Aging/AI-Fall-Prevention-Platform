@@ -1,6 +1,5 @@
 package happyaging.server.configuration;
 
-import happyaging.server.service.UserService;
 import happyaging.server.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,11 +16,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
-
-    private final UserService userService;
-    private final String secretKey;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -38,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // Token 꺼내기
         String token = authorization.split(" ")[1];
         // Token expired 됐는지 확인
-        if (JwtUtil.isExpired(token, secretKey)) {
+        if (JwtUtil.isExpired(token)) {
             response.setCharacterEncoding("UTF-8");  // 인코딩을 UTF-8로 설정
             response.setContentType("text/plain; charset=UTF-8");  // Content-Type 설정
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -46,11 +40,11 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        String tokenType = JwtUtil.getTokenType(token, secretKey);
+        String tokenType = JwtUtil.getTokenType(token);
         if ("REFRESH_TOKEN".equals(tokenType)) {
             filterChain.doFilter(request, response);
         } else if ("ACCESS_TOKEN".equals(tokenType)) {
-            String email = JwtUtil.getUserEmail(token, secretKey);
+            String email = JwtUtil.getUserEmail(token);
 
             // 권한 부여
             UsernamePasswordAuthenticationToken authenticationToken =

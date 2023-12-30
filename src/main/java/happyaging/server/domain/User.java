@@ -38,22 +38,16 @@ public class User {
     private String password;
 
     @Column
-    private String socialId;
-
-    @Column
-    private String socialProvider;
+    private String kakao_email;
 
     @Column(nullable = false)
-    private String nickname;
+    private String name;
 
     @Column(nullable = false)
     private LocalDate createdAt;
 
     @Column(name = "is_manager", nullable = false)
     private boolean isManager;
-
-    @Column(name = "profile_image")
-    private String profile;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Senior> seniorList = new ArrayList<>();

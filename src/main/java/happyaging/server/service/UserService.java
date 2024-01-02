@@ -2,13 +2,15 @@ package happyaging.server.service;
 
 import happyaging.server.domain.User;
 import happyaging.server.dto.user.LoginResponseToken;
-import happyaging.server.exception.AppException;
-import happyaging.server.exception.ErrorCode;
+import happyaging.server.dto.user.UserJoinRequestDTO;
 import happyaging.server.repository.UserRepository;
-import happyaging.server.utils.JwtUtil;
+import happyaging.server.security.JwtUtil;
+import happyaging.server.utils.AppException;
+import happyaging.server.utils.ErrorCode;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,24 +28,27 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("cannot find user"));
     }
 
-    public String join(String email, String password, String name) {
-        // email 중복 체크
-        userRepository.findByEmail(email)
-                .ifPresent(user -> {
-                    throw new AppException(ErrorCode.EMAIl_DUPLICATED);
-                });
+    @Transactional
+    public void join(UserJoinRequestDTO userJoinRequestDTO) {
+        try {
+            User user = User.builder()
+                    .name(userJoinRequestDTO.getName())
+                    .email(userJoinRequestDTO.getEmail())
+                    .password(encoder.encode(userJoinRequestDTO.getPassword()))
+                    .phoneNumber(userJoinRequestDTO.getPhoneNumber())
+                    .userType(userJoinRequestDTO.getUserType())
+                    .createdAt(LocalDate.now())
+                    .build();
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.EMAIL_DUPLICATED);
+        }
+    }
 
-        LocalDate today = LocalDate.now();
-        // 저장
-        User user = User.builder()
-                .email(email)
-                .password(encoder.encode(password))
-                .name(name)
-                .email(email)
-                .createdAt(today)
-                .build();
-        userRepository.save(user);
-        return "SUCCESS";
+    public void checkDuplicateEmail(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
+            throw new AppException(ErrorCode.EMAIL_DUPLICATED);
+        });
     }
 
     public LoginResponseToken login(String email, String password) {

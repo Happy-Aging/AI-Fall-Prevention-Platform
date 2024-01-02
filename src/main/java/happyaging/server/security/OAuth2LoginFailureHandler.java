@@ -1,4 +1,4 @@
-package happyaging.server.configuration;
+package happyaging.server.security;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

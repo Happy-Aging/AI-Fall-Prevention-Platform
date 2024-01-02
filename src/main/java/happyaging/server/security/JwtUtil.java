@@ -1,9 +1,9 @@
-package happyaging.server.utils;
+package happyaging.server.security;
 
 import happyaging.server.domain.User;
 import happyaging.server.dto.user.LoginResponseToken;
-import happyaging.server.exception.AppException;
-import happyaging.server.exception.ErrorCode;
+import happyaging.server.utils.AppException;
+import happyaging.server.utils.ErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

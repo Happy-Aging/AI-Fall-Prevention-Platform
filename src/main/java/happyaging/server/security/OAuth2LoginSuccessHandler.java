@@ -1,9 +1,8 @@
-package happyaging.server.configuration;
+package happyaging.server.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import happyaging.server.domain.User;
 import happyaging.server.dto.user.LoginResponseToken;
-import happyaging.server.utils.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

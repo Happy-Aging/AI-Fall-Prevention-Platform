@@ -1,6 +1,5 @@
-package happyaging.server.configuration;
+package happyaging.server.security;
 
-import happyaging.server.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

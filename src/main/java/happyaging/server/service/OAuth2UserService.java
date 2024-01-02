@@ -22,15 +22,11 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = super.loadUser(userRequest);
-        Map<String, Object> attributes = oAuth2User.getAttributes();
 
-        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-        String email = (String) kakaoAccount.get("email");
+        String email = getEmailFromUserRequest(userRequest);
 
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
-                    // 이메일이 일치하는 기존 사용자가 없으면 새로운 사용자를 생성합니다.
                     User newUser = User.builder()
                             .email(email)
                             .build();
@@ -46,5 +42,12 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
                 userAttribute, "user");
+    }
+
+    private String getEmailFromUserRequest(OAuth2UserRequest userRequest) {
+        OAuth2User oAuth2User = super.loadUser(userRequest);
+        Map<String, Object> attributes = oAuth2User.getAttributes();
+        Map<String, Object> kakao = (Map<String, Object>) attributes.get("kakao_account");
+        return (String) kakao.get("email");
     }
 }

@@ -1,4 +1,4 @@
-package happyaging.server.exception;
+package happyaging.server.utils;
 
 import java.util.List;
 import org.springframework.http.HttpStatus;

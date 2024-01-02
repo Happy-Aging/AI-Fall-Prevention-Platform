@@ -1,4 +1,4 @@
-package happyaging.server.exception;
+package happyaging.server.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

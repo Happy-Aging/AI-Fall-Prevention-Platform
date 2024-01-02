@@ -8,7 +8,6 @@ import happyaging.server.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,5 +38,12 @@ public class UserController {
         LoginResponseToken token = userService.refresh(refreshRequestDTO.getRefreshToken());
         return ResponseEntity.ok().body(token);
     }
+//
+//    @GetMapping("/login/kakao")
+//    public String handleOAuth2Callback(@RequestParam String code) {
+//        // code를 사용하여 카카오로부터 액세스 토큰 요청
+//        // 필요한 로직 구현
+//        return "인증 코드: " + code;
+//    }
 
 }

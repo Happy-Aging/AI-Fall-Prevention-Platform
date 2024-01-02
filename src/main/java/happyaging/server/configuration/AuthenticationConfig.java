@@ -31,7 +31,7 @@ public class AuthenticationConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/user/**").permitAll()
+                .requestMatchers("/user/**", "/index.html").permitAll()
                 .requestMatchers("/**").authenticated()
                 .and()
                 .oauth2Login()

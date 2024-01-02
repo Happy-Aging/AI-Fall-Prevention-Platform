@@ -40,13 +40,13 @@ public class User {
     @Column
     private String kakao_email;
 
-    @Column(nullable = false)
+    @Column
     private String name;
 
-    @Column(nullable = false)
+    @Column
     private LocalDate createdAt;
 
-    @Column(name = "is_manager", nullable = false)
+    @Column
     private boolean isManager;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

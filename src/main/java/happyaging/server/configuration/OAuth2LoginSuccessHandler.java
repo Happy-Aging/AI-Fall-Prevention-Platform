@@ -1,6 +1,7 @@
 package happyaging.server.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import happyaging.server.domain.User;
 import happyaging.server.dto.user.LoginResponseToken;
 import happyaging.server.utils.JwtUtil;
 import jakarta.servlet.ServletException;
@@ -18,9 +19,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String email = oAuth2User.getAttribute("email");
+        User user = oAuth2User.getAttribute("user");
 
-        LoginResponseToken tokens = JwtUtil.createJwt(email);
+        LoginResponseToken tokens = JwtUtil.createJwt(user);
 
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(new ObjectMapper().writeValueAsString(tokens));

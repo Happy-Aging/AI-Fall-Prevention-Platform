@@ -9,7 +9,6 @@ import happyaging.server.utils.JwtUtil;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,32 +41,27 @@ public class UserService {
                 .name(name)
                 .email(email)
                 .createdAt(today)
-                .isManager(false)
                 .build();
         userRepository.save(user);
         return "SUCCESS";
     }
 
     public LoginResponseToken login(String email, String password) {
-        // useremail 없음
-        User selectedUser = userRepository.findByEmail(email)
+        User findUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
 
-        // password 틀림
-        if (!encoder.matches(password, selectedUser.getPassword())) {
+        if (!encoder.matches(password, findUser.getPassword())) {
             throw new AppException(ErrorCode.INVALID_PASSWORD);
         }
 
-        return JwtUtil.createJwt(selectedUser.getEmail());
+        return JwtUtil.createJwt(findUser);
     }
 
     public LoginResponseToken refresh(String refreshToken) {
-        log.info("refresh token: {}", refreshToken);
         String email = JwtUtil.getUserEmail(refreshToken);
-        log.info("email: {}", email);
-        User selectedUser = userRepository.findByEmail(email)
+        User findUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
 
-        return JwtUtil.createJwt(selectedUser.getEmail());
+        return JwtUtil.createJwt(findUser);
     }
 }

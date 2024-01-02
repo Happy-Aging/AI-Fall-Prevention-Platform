@@ -18,19 +18,24 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
+    private static final String TOKEN_PREFIX = "Bearer ";
+    private static final String TOKEN_DELIMITER = " ";
+    private static final int TOKEN_INDEX = 1;
+
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
+        if (authorization == null || !authorization.startsWith(TOKEN_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // Token 꺼내기
-        String token = authorization.split(" ")[1];
+        String token = authorization.split(TOKEN_DELIMITER)[TOKEN_INDEX];
         // Token expired 됐는지 확인
         if (JwtUtil.isExpired(token)) {
             response.setCharacterEncoding("UTF-8");  // 인코딩을 UTF-8로 설정

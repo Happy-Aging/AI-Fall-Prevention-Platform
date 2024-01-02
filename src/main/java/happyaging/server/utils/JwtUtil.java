@@ -1,5 +1,6 @@
 package happyaging.server.utils;
 
+import happyaging.server.domain.User;
 import happyaging.server.dto.user.LoginResponseToken;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.ErrorCode;
@@ -57,10 +58,11 @@ public class JwtUtil {
 
     }
 
-    public static LoginResponseToken createJwt(String email) {
+    public static LoginResponseToken createJwt(User user) {
         Claims accesClaims = Jwts.claims();
-        accesClaims.put("userEmail", email);
-        accesClaims.put("type", "ACCESS_TOKEN");
+        accesClaims.put("userId", user.getId());
+        accesClaims.put("type", "ACCESS");
+        accesClaims.put("role", user.getUserType());
 
         String accessToken = Jwts.builder()
                 .setClaims(accesClaims)
@@ -70,8 +72,9 @@ public class JwtUtil {
                 .compact();
 
         Claims refreshClaims = Jwts.claims();
-        refreshClaims.put("userEmail", email);
-        refreshClaims.put("type", "REFRESH_TOKEN");
+        refreshClaims.put("userId", user.getId());
+        refreshClaims.put("type", "REFRESH");
+        accesClaims.put("role", user.getUserType());
         String refreshToken = Jwts.builder()
                 .setClaims(refreshClaims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))

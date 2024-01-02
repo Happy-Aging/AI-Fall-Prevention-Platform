@@ -8,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,30 +23,27 @@ import org.hibernate.annotations.DynamicUpdate;
 @Entity
 @Builder
 @Getter
-@Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
-    @Column
-    private String email;
-
-    @Column
-    private String password;
-
-    @Column
-    private String kakao_email;
-
-    @Column
+    //TODO: not NULL 추가
     private String name;
 
-    @Column
-    private LocalDate createdAt;
+    //TODO: not NULL 추가
+    private String email;
 
-    @Column
-    private boolean isManager;
+    private String password;
+
+    private String phoneNumber;
+
+    //TODO: not NULL 추가
+    private UserType userType;
+
+    //TODO: not NULL 추가
+    private LocalDate createdAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Senior> seniorList = new ArrayList<>();

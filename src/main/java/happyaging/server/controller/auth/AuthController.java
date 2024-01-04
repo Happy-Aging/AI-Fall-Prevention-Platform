@@ -1,13 +1,13 @@
 package happyaging.server.controller.auth;
 
+import happyaging.server.dto.auth.LoginRequestDTO;
 import happyaging.server.dto.auth.LoginSuccessDTO;
 import happyaging.server.dto.auth.SocialLoginRequestDTO;
 import happyaging.server.dto.user.RefreshRequestDTO;
 import happyaging.server.dto.user.UserJoinRequestDTO;
-import happyaging.server.dto.user.UserLoginRequestDTO;
+import happyaging.server.exception.SuccessCode;
 import happyaging.server.service.auth.AuthService;
 import happyaging.server.service.user.UserService;
-import happyaging.server.exception.SuccessCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,13 +28,12 @@ public class AuthController {
     public ResponseEntity<?> socialLogin(
             @RequestBody @Valid SocialLoginRequestDTO socialLoginRequestDTO) {
         String email = authService.requestEmail(socialLoginRequestDTO);
-        return authService.login(email, socialLoginRequestDTO.getVendor());
+        return authService.socialLogin(email, socialLoginRequestDTO.getVendor());
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginSuccessDTO> login(@RequestBody @Valid UserLoginRequestDTO userLoginRequestDTO) {
-        LoginSuccessDTO token = userService.login(userLoginRequestDTO.getEmail(), userLoginRequestDTO.getPassword());
-        return ResponseEntity.ok().body(token);
+    public LoginSuccessDTO login(@RequestBody @Valid LoginRequestDTO loginRequestDTO) {
+        return authService.login(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
     }
 
     @PostMapping("/join")

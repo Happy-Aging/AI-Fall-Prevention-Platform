@@ -24,7 +24,7 @@ public class AuthenticationConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/user/**", "/index.html").permitAll()
+                .requestMatchers("/auth/login/**", "/auth/join").permitAll()
                 .requestMatchers("/**").authenticated()
                 .and()
                 .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class)

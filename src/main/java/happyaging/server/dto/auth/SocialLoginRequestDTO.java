@@ -1,6 +1,6 @@
 package happyaging.server.dto.auth;
 
-import happyaging.server.domain.Vendor;
+import happyaging.server.domain.user.Vendor;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

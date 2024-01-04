@@ -1,9 +1,9 @@
 package happyaging.server.security;
 
 import happyaging.server.domain.User;
-import happyaging.server.dto.user.LoginResponseToken;
+import happyaging.server.dto.auth.LoginSuccessDTO;
 import happyaging.server.utils.AppException;
-import happyaging.server.utils.ErrorCode;
+import happyaging.server.utils.AuthErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -30,7 +30,7 @@ public class JwtUtil {
             return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
                     .getBody().get("userEmail", String.class);
         } catch (ExpiredJwtException e) {
-            throw new AppException(ErrorCode.TOKEN_EXPIRED);
+            throw new AppException(AuthErrorCode.TOKEN_EXPIRED);
         }
 
     }
@@ -58,7 +58,7 @@ public class JwtUtil {
 
     }
 
-    public static LoginResponseToken createJwt(User user) {
+    public static LoginSuccessDTO createJwt(User user) {
         Claims accesClaims = Jwts.claims();
         accesClaims.put("userId", user.getId());
         accesClaims.put("type", "ACCESS");
@@ -82,10 +82,6 @@ public class JwtUtil {
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
 
-        return LoginResponseToken.builder()
-                .grantType("Bearer")
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        return new LoginSuccessDTO(accessToken, refreshToken);
     }
 }

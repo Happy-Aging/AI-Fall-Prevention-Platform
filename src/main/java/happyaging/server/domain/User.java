@@ -43,6 +43,9 @@ public class User {
     private UserType userType;
 
     //TODO: not NULL 추가
+    private Vendor vendor;
+
+    //TODO: not NULL 추가
     private LocalDate createdAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

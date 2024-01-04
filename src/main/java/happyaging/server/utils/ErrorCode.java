@@ -1,17 +1,9 @@
 package happyaging.server.utils;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-@AllArgsConstructor
-@Getter
-public enum ErrorCode {
-    EMAIL_DUPLICATED(HttpStatus.CONFLICT, "중복된 ID 입니다."),
-    EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 아이디를 찾을 수 없습니다."),
-    INVALID_PASSWORD(HttpStatus.NOT_FOUND, "비밀번호가 틀렸습니다."),
-    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "refresh Token이 만료되었습니다.");
+public interface ErrorCode {
+    String getMessage();
 
-    private final HttpStatus httpStatus;
-    private final String message;
+    HttpStatus getHttpStatus();
 }

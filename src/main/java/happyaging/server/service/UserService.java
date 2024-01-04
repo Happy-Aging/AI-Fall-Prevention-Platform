@@ -1,22 +1,20 @@
 package happyaging.server.service;
 
 import happyaging.server.domain.User;
-import happyaging.server.dto.user.LoginResponseToken;
+import happyaging.server.dto.auth.LoginSuccessDTO;
 import happyaging.server.dto.user.UserJoinRequestDTO;
 import happyaging.server.repository.UserRepository;
 import happyaging.server.security.JwtUtil;
 import happyaging.server.utils.AppException;
-import happyaging.server.utils.ErrorCode;
+import happyaging.server.utils.AuthErrorCode;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
@@ -41,31 +39,31 @@ public class UserService {
                     .build();
             userRepository.save(user);
         } catch (DataIntegrityViolationException exception) {
-            throw new AppException(ErrorCode.EMAIL_DUPLICATED);
+            throw new AppException(AuthErrorCode.EMAIL_DUPLICATED);
         }
     }
 
     public void checkDuplicateEmail(String email) {
         userRepository.findByEmail(email).ifPresent(user -> {
-            throw new AppException(ErrorCode.EMAIL_DUPLICATED);
+            throw new AppException(AuthErrorCode.EMAIL_DUPLICATED);
         });
     }
 
-    public LoginResponseToken login(String email, String password) {
+    public LoginSuccessDTO login(String email, String password) {
         User findUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
+                .orElseThrow(() -> new AppException(AuthErrorCode.INVALID_USER));
 
         if (!encoder.matches(password, findUser.getPassword())) {
-            throw new AppException(ErrorCode.INVALID_PASSWORD);
+            throw new AppException(AuthErrorCode.INVALID_USER);
         }
 
         return JwtUtil.createJwt(findUser);
     }
 
-    public LoginResponseToken refresh(String refreshToken) {
+    public LoginSuccessDTO refresh(String refreshToken) {
         String email = JwtUtil.getUserEmail(refreshToken);
         User findUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
+                .orElseThrow(() -> new AppException(AuthErrorCode.INVALID_USER));
 
         return JwtUtil.createJwt(findUser);
     }

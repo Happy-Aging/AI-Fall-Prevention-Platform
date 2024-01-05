@@ -82,9 +82,9 @@ public class AuthService {
 
     private String getEmailFromExternalServer(SocialLoginRequestDTO socialLoginRequestDTO) {
         String accessToken = socialLoginRequestDTO.getAccessToken();
-        if (accessToken != null && accessToken.startsWith("Bearer ")) {
+        if (accessToken != null) {
             String url = socialLoginRequestDTO.getVendor().getUrl();
-            HttpEntity<String> header = createHeader(accessToken);
+            HttpEntity<String> header = createHeader("Bearer " + accessToken);
             return requestEmail(url, header);
         }
         throw new AppException(AuthErrorCode.INVALID_ACCESS_TOKEN);

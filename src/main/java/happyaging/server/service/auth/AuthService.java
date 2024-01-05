@@ -34,6 +34,14 @@ public class AuthService {
     private final BCryptPasswordEncoder encoder;
 
     @Transactional(readOnly = true)
+    public LoginSuccessDTO login(String email, String password) {
+        User user = findUserByEmail(email);
+        checkLoginMethod(user, Vendor.HAPPY_AGING);
+        comparePassword(password, user.getPassword());
+        return JwtUtil.createTokens(user);
+    }
+
+    @Transactional(readOnly = true)
     public ResponseEntity<?> socialLogin(SocialLoginRequestDTO socialLoginRequestDTO) {
         String email = getEmailFromExternalServer(socialLoginRequestDTO);
         User user = userRepository.findByEmail(email).orElse(null);
@@ -43,14 +51,6 @@ public class AuthService {
             return ResponseEntity.ok(JwtUtil.createTokens(user));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginFailureDTO(email, vendor));
-    }
-
-    @Transactional(readOnly = true)
-    public LoginSuccessDTO login(String email, String password) {
-        User user = findUserOrException(email);
-        checkLoginMethod(user, Vendor.HAPPY_AGING);
-        comparePassword(password, user.getPassword());
-        return JwtUtil.createTokens(user);
     }
 
     @Transactional
@@ -66,6 +66,17 @@ public class AuthService {
         checkDuplicateEmail(socialJoinRequestDTO.getEmail());
         User user = User.createFromSocialJoin(socialJoinRequestDTO);
         userRepository.save(user);
+        return JwtUtil.createTokens(user);
+    }
+
+    public LoginSuccessDTO checkRefreshToken(String refreshToken) {
+        Long userId = JwtUtil.getUserIdFromToken(refreshToken);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(AuthErrorCode.INVALID_USER));
+
+        if (JwtUtil.isExpired(refreshToken)) {
+            throw new AppException(AuthErrorCode.TOKEN_EXPIRED);
+        }
         return JwtUtil.createTokens(user);
     }
 
@@ -118,8 +129,9 @@ public class AuthService {
         }
     }
 
-    private User findUserOrException(String email) {
+    private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(AuthErrorCode.INVALID_USER));
     }
+
 }

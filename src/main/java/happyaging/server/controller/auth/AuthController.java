@@ -6,12 +6,12 @@ import happyaging.server.dto.auth.LoginSuccessDTO;
 import happyaging.server.dto.auth.SocialJoinRequestDTO;
 import happyaging.server.dto.auth.SocialLoginRequestDTO;
 import happyaging.server.service.auth.AuthService;
-import happyaging.server.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private final UserService userService;
 
     @PostMapping("/login/social")
     public ResponseEntity<?> socialLogin(
@@ -44,9 +43,8 @@ public class AuthController {
         return authService.socialJoin(socialJoinRequestDTO);
     }
 
-//    @PostMapping("/refreshToken")
-//    public ResponseEntity<LoginSuccessDTO> refreshToken(@RequestBody RefreshRequestDTO refreshRequestDTO) {
-//        LoginSuccessDTO token = userService.refresh(refreshRequestDTO.getRefreshToken());
-//        return ResponseEntity.ok().body(token);
-//    }
+    @PostMapping("/refreshToken")
+    public LoginSuccessDTO refreshToken(@RequestHeader("Authorization") String refreshToken) {
+        return authService.checkRefreshToken(refreshToken);
+    }
 }

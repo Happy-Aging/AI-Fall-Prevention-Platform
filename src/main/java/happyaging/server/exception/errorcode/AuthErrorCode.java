@@ -10,7 +10,7 @@ public enum AuthErrorCode implements ErrorCode {
     INVALID_USER(HttpStatus.UNAUTHORIZED, "가입되지 않은 회원입니다."),
     INVALID_LOGIN_METHOD(HttpStatus.CONFLICT, "올바르지 않은 로그인 방식입니다."),
     EMAIL_DUPLICATED(HttpStatus.CONFLICT, "중복된 ID 입니다."),
-    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "refresh Token이 만료되었습니다.");
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "token이 만료되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

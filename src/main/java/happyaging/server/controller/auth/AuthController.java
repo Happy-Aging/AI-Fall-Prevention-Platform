@@ -3,7 +3,6 @@ package happyaging.server.controller.auth;
 import happyaging.server.dto.auth.LoginRequestDTO;
 import happyaging.server.dto.auth.LoginSuccessDTO;
 import happyaging.server.dto.auth.SocialLoginRequestDTO;
-import happyaging.server.dto.user.RefreshRequestDTO;
 import happyaging.server.dto.user.UserJoinRequestDTO;
 import happyaging.server.exception.SuccessCode;
 import happyaging.server.service.auth.AuthService;
@@ -44,9 +43,9 @@ public class AuthController {
                 .body(SuccessCode.JOIN.getMessage());
     }
 
-    @PostMapping("/refreshToken")
-    public ResponseEntity<LoginSuccessDTO> refreshToken(@RequestBody RefreshRequestDTO refreshRequestDTO) {
-        LoginSuccessDTO token = userService.refresh(refreshRequestDTO.getRefreshToken());
-        return ResponseEntity.ok().body(token);
-    }
+//    @PostMapping("/refreshToken")
+//    public ResponseEntity<LoginSuccessDTO> refreshToken(@RequestBody RefreshRequestDTO refreshRequestDTO) {
+//        LoginSuccessDTO token = userService.refresh(refreshRequestDTO.getRefreshToken());
+//        return ResponseEntity.ok().body(token);
+//    }
 }

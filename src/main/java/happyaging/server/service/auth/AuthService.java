@@ -46,7 +46,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email).orElse(null);
         if (user != null) {
             checkLoginMethod(user, vendor);
-            return ResponseEntity.ok(JwtUtil.createJwt(user));
+            return ResponseEntity.ok(JwtUtil.createTokens(user));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginFailureDTO(email, vendor));
     }
@@ -55,7 +55,7 @@ public class AuthService {
     public LoginSuccessDTO login(String email, String password) {
         User findUser = findUserOrException(email);
         comparePassword(password, findUser);
-        return JwtUtil.createJwt(findUser);
+        return JwtUtil.createTokens(findUser);
     }
 
     private static String requestEmail(String url, HttpEntity<String> entity) {

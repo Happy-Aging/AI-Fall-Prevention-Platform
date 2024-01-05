@@ -1,8 +1,7 @@
 package happyaging.server.configuration;
 
-import happyaging.server.service.UserService;
+import happyaging.server.security.JwtFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,28 +15,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class AuthenticationConfig {
 
-    private final UserService userService;
-
-    @Value("${jwt.secret}")
-    private String secretKey;
+    private final JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .httpBasic().disable()
-                .csrf().disable()
                 .cors().and()
-                .authorizeHttpRequests()
-                .requestMatchers("/user/join", "/user/login", "/user/refreshToken", "/response/{seniorId}", "/senior",
-                        "/question", "/survey/{resultId}/download")
-                .permitAll()
-                .requestMatchers("/**").authenticated()
-                .and()
+                .csrf().disable()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilterBefore(new JwtFilter(userService, secretKey), UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests()
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/**").authenticated()
+                .and()
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-
     }
 }

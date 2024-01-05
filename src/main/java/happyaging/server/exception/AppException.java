@@ -1,5 +1,6 @@
 package happyaging.server.exception;
 
+import happyaging.server.exception.errorcode.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

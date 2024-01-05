@@ -1,0 +1,27 @@
+package happyaging.server.dto.auth;
+
+import happyaging.server.domain.user.UserType;
+import happyaging.server.domain.user.Vendor;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor
+public class SocialJoinRequestDTO {
+    @NotEmpty(message = "이름은 필수입니다.")
+    private String name;
+
+    @NotEmpty(message = "이메일은 필수입니다.")
+    private String email;
+
+    @NotEmpty(message = "전화번호는 필수입니다.")
+    private String phoneNumber;
+
+    @NotNull(message = "가입자 유형은 필수입니다.")
+    private UserType userType;
+
+    @NotNull(message = "vendor는 필수입니다.")
+    private Vendor vendor;
+}

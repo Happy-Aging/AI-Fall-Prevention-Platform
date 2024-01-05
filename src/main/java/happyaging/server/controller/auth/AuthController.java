@@ -1,10 +1,10 @@
 package happyaging.server.controller.auth;
 
+import happyaging.server.dto.auth.JoinRequestDTO;
 import happyaging.server.dto.auth.LoginRequestDTO;
 import happyaging.server.dto.auth.LoginSuccessDTO;
+import happyaging.server.dto.auth.SocialJoinRequestDTO;
 import happyaging.server.dto.auth.SocialLoginRequestDTO;
-import happyaging.server.dto.user.UserJoinRequestDTO;
-import happyaging.server.exception.SuccessCode;
 import happyaging.server.service.auth.AuthService;
 import happyaging.server.service.user.UserService;
 import jakarta.validation.Valid;
@@ -26,8 +26,7 @@ public class AuthController {
     @PostMapping("/login/social")
     public ResponseEntity<?> socialLogin(
             @RequestBody @Valid SocialLoginRequestDTO socialLoginRequestDTO) {
-        String email = authService.requestEmail(socialLoginRequestDTO);
-        return authService.socialLogin(email, socialLoginRequestDTO.getVendor());
+        return authService.socialLogin(socialLoginRequestDTO);
     }
 
     @PostMapping("/login")
@@ -36,11 +35,13 @@ public class AuthController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity<String> join(@RequestBody @Valid UserJoinRequestDTO userJoinRequestDTO) {
-        userService.checkDuplicateEmail(userJoinRequestDTO.getEmail());
-        userService.join(userJoinRequestDTO);
-        return ResponseEntity.status(SuccessCode.JOIN.getHttpStatus())
-                .body(SuccessCode.JOIN.getMessage());
+    public LoginSuccessDTO join(@RequestBody @Valid JoinRequestDTO joinRequestDTO) {
+        return authService.join(joinRequestDTO);
+    }
+
+    @PostMapping("/join/social")
+    public LoginSuccessDTO join(@RequestBody @Valid SocialJoinRequestDTO socialJoinRequestDTO) {
+        return authService.socialJoin(socialJoinRequestDTO);
     }
 
 //    @PostMapping("/refreshToken")

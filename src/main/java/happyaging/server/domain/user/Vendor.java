@@ -9,7 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Vendor {
 
-    HAPPYAGING(""),
+    HAPPY_AGING(""),
     KAKAO("https://kapi.kakao.com/v2/user/me");
 
     private final String url;

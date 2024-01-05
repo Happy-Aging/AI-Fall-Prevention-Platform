@@ -2,8 +2,10 @@ package happyaging.server.service.auth;
 
 import happyaging.server.domain.user.User;
 import happyaging.server.domain.user.Vendor;
+import happyaging.server.dto.auth.JoinRequestDTO;
 import happyaging.server.dto.auth.LoginFailureDTO;
 import happyaging.server.dto.auth.LoginSuccessDTO;
+import happyaging.server.dto.auth.SocialJoinRequestDTO;
 import happyaging.server.dto.auth.SocialLoginRequestDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AuthErrorCode;
@@ -11,6 +13,7 @@ import happyaging.server.repository.user.UserRepository;
 import happyaging.server.security.JwtUtil;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,6 +26,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -30,20 +34,10 @@ public class AuthService {
     private final BCryptPasswordEncoder encoder;
 
     @Transactional(readOnly = true)
-    public String requestEmail(SocialLoginRequestDTO socialLoginRequestDTO) {
-        String accessToken = socialLoginRequestDTO.getAccessToken();
-
-        if (accessToken != null && accessToken.startsWith("Bearer ")) {
-            String url = socialLoginRequestDTO.getVendor().getUrl();
-            HttpEntity<String> header = createHeader(accessToken);
-            return requestEmail(url, header);
-        }
-        throw new AppException(AuthErrorCode.INVALID_ACCESS_TOKEN);
-    }
-
-    @Transactional(readOnly = true)
-    public ResponseEntity<?> socialLogin(String email, Vendor vendor) {
+    public ResponseEntity<?> socialLogin(SocialLoginRequestDTO socialLoginRequestDTO) {
+        String email = getEmailFromExternalServer(socialLoginRequestDTO);
         User user = userRepository.findByEmail(email).orElse(null);
+        Vendor vendor = socialLoginRequestDTO.getVendor();
         if (user != null) {
             checkLoginMethod(user, vendor);
             return ResponseEntity.ok(JwtUtil.createTokens(user));
@@ -53,9 +47,42 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public LoginSuccessDTO login(String email, String password) {
-        User findUser = findUserOrException(email);
-        comparePassword(password, findUser);
-        return JwtUtil.createTokens(findUser);
+        User user = findUserOrException(email);
+        checkLoginMethod(user, Vendor.HAPPY_AGING);
+        comparePassword(password, user.getPassword());
+        return JwtUtil.createTokens(user);
+    }
+
+    @Transactional
+    public LoginSuccessDTO join(JoinRequestDTO userJoinRequestDTO) {
+        checkDuplicateEmail(userJoinRequestDTO.getEmail());
+        User user = User.createFromJoin(userJoinRequestDTO, encoder);
+        userRepository.save(user);
+        return JwtUtil.createTokens(user);
+    }
+
+    @Transactional
+    public LoginSuccessDTO socialJoin(SocialJoinRequestDTO socialJoinRequestDTO) {
+        checkDuplicateEmail(socialJoinRequestDTO.getEmail());
+        User user = User.createFromSocialJoin(socialJoinRequestDTO);
+        userRepository.save(user);
+        return JwtUtil.createTokens(user);
+    }
+
+    private String getEmailFromExternalServer(SocialLoginRequestDTO socialLoginRequestDTO) {
+        String accessToken = socialLoginRequestDTO.getAccessToken();
+        if (accessToken != null && accessToken.startsWith("Bearer ")) {
+            String url = socialLoginRequestDTO.getVendor().getUrl();
+            HttpEntity<String> header = createHeader(accessToken);
+            return requestEmail(url, header);
+        }
+        throw new AppException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+    }
+
+    private void checkDuplicateEmail(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
+            throw new AppException(AuthErrorCode.EMAIL_DUPLICATED);
+        });
     }
 
     private static String requestEmail(String url, HttpEntity<String> entity) {
@@ -85,8 +112,8 @@ public class AuthService {
         }
     }
 
-    private void comparePassword(String password, User findUser) {
-        if (!encoder.matches(password, findUser.getPassword())) {
+    private void comparePassword(String password, String encodedPassword) {
+        if (!encoder.matches(password, encodedPassword)) {
             throw new AppException(AuthErrorCode.INVALID_USER);
         }
     }

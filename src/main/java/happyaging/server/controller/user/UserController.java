@@ -6,6 +6,7 @@ import happyaging.server.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +30,13 @@ public class UserController {
     public ResponseEntity<Object> updateUser(@RequestBody @Valid UserInfoUpdateDTO userInfoUpdateDTO) {
         Long userId = userService.readCurrentUserId();
         userService.updateUserInfo(userId, userInfoUpdateDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Object> deleteUser() {
+        Long userId = userService.readCurrentUserId();
+        userService.deleteUser(userId);
         return ResponseEntity.ok().build();
     }
 }

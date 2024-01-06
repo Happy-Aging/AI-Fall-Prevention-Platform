@@ -32,6 +32,12 @@ public class UserService {
         user.update(userInfoUpdateDTO, encoder);
     }
 
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = findUserById(userId);
+        userRepository.delete(user);
+    }
+
     public Long readCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {

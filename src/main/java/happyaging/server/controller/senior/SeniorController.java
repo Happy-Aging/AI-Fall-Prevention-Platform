@@ -6,7 +6,9 @@ import happyaging.server.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,9 +21,16 @@ public class SeniorController {
     private final SeniorService seniorService;
 
     @PostMapping
-    public ResponseEntity<Object> createSenior(@RequestBody @Valid SeniorRequestDTO seniorRequestDTO) {
+    public ResponseEntity<Long> createSenior(@RequestBody @Valid SeniorRequestDTO seniorRequestDTO) {
         Long userId = userService.readCurrentUserId();
-        seniorService.createSenior(userId, seniorRequestDTO);
+        Long seniorId = seniorService.createSenior(userId, seniorRequestDTO);
+        return ResponseEntity.ok().body(seniorId);
+    }
+
+    @PutMapping("/{seniorId}")
+    public ResponseEntity<Object> updateSenior(@PathVariable Long seniorId,
+                                               @RequestBody @Valid SeniorRequestDTO seniorRequestDTO) {
+        seniorService.updateSenior(seniorId, seniorRequestDTO);
         return ResponseEntity.ok().build();
     }
 
@@ -35,16 +44,6 @@ public class SeniorController {
 //        return seniorService.getSeniorList(user);
 //    }
 //
-//    @PutMapping("/{seniorId}")
-//    public ResponseEntity<Object> updateSenior(Authentication authentication,
-//                                               @PathVariable Long seniorId,
-//                                               @RequestBody @Valid SeniorRequestDTO seniorRequestDTO) {
-//        if (authentication == null) {
-//            return null;
-//        }
-//        seniorService.updateSenior(seniorId, seniorRequestDTO);
-//        return new ResponseEntity<>("update senior success!", HttpStatus.OK);
-//    }
 //
 //    @DeleteMapping("/{seniorId}")
 //    public ResponseEntity<Object> deleteSenior(Authentication authentication, @PathVariable Long seniorId) {

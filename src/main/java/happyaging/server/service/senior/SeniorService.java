@@ -3,6 +3,8 @@ package happyaging.server.service.senior;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.user.User;
 import happyaging.server.dto.senior.SeniorRequestDTO;
+import happyaging.server.exception.AppException;
+import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.repository.senior.SeniorRepository;
 import happyaging.server.service.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -12,17 +14,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class SeniorService {
-
     private final UserService userService;
+
     private final SeniorRepository seniorRepository;
 
     @Transactional
-    public void createSenior(Long userId, SeniorRequestDTO seniorRequestDTO) {
+    public Long createSenior(Long userId, SeniorRequestDTO seniorRequestDTO) {
         User user = userService.findUserById(userId);
         Senior senior = Senior.create(user, seniorRequestDTO);
         seniorRepository.save(senior);
+        return senior.getId();
     }
 
+    @Transactional
+    public void updateSenior(Long seniorId, SeniorRequestDTO seniorRequestDTO) {
+        Senior senior = findSeniorById(seniorId);
+        senior.update(seniorRequestDTO);
+    }
+
+    private Senior findSeniorById(Long seniorId) {
+        return seniorRepository.findById(seniorId)
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_SENIOR));
+    }
 //
 //    @Transactional(readOnly = true)
 //    public List<SeniorResponseDTO> getSeniorList(User user) {
@@ -69,14 +82,7 @@ public class SeniorService {
 //        return senior.getSurveyList().stream()
 //                .max(Comparator.comparing(Survey::getDate))
 //                .orElse(null);
-//    }
-//
-//    public void updateSenior(Long seniorId, SeniorRequestDTO seniorRequestDTO) {
-//        Senior existingSenior = seniorRepository.findById(seniorId)
-//                .orElseThrow(() -> new IllegalArgumentException("cannot find senior"));
-//
-//        existingSenior.update(seniorRequestDTO);
-//        seniorRepository.save(existingSenior);
+
 //    }
 //
 //    public void deleteSenior(Long seniorId) {

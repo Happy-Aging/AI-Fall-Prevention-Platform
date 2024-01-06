@@ -60,4 +60,12 @@ public class Senior {
                 .user(user)
                 .build();
     }
+
+    public void update(SeniorRequestDTO seniorRequestDTO) {
+        this.name = seniorRequestDTO.getName();
+        this.address = seniorRequestDTO.getAddress();
+        this.birth = seniorRequestDTO.getBirth();
+        this.phoneNumber = seniorRequestDTO.getPhoneNumber();
+        this.relation = seniorRequestDTO.getRelation();
+    }
 }

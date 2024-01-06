@@ -13,13 +13,9 @@ import lombok.Getter;
 public class UserInfoDTO {
 
     private String name;
-
     private String phoneNumber;
-
     private UserType userType;
-
     private Vendor vendor;
-
 
     public static UserInfoDTO create(User user) {
         return UserInfoDTO.builder()

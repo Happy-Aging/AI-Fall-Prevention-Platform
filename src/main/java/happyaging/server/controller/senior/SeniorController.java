@@ -1,12 +1,15 @@
 package happyaging.server.controller.senior;
 
 import happyaging.server.dto.senior.SeniorRequestDTO;
+import happyaging.server.dto.senior.SeniorResponseDTO;
 import happyaging.server.service.senior.SeniorService;
 import happyaging.server.service.user.UserService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -41,16 +44,9 @@ public class SeniorController {
         return ResponseEntity.ok().build();
     }
 
-//    @GetMapping("/list")
-//    public List<SeniorResponseDTO> getSeniorList(Authentication authentication) {
-//        if (authentication == null) {
-//            return null;
-//        }
-//        String email = authentication.getName();
-//        User user = userService.getUserByEmail(email);
-//        return seniorService.getSeniorList(user);
-//    }
-//
-//
-
+    @GetMapping
+    public List<SeniorResponseDTO> getSeniorList() {
+        Long userId = userService.readCurrentUserId();
+        return seniorService.readSeniors(userId);
+    }
 }

@@ -32,6 +32,12 @@ public class SeniorService {
         senior.update(seniorRequestDTO);
     }
 
+    @Transactional
+    public void deleteSenior(Long seniorId) {
+        Senior senior = findSeniorById(seniorId);
+        seniorRepository.delete(senior);
+    }
+
     private Senior findSeniorById(Long seniorId) {
         return seniorRepository.findById(seniorId)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_SENIOR));
@@ -83,11 +89,5 @@ public class SeniorService {
 //                .max(Comparator.comparing(Survey::getDate))
 //                .orElse(null);
 
-//    }
-//
-//    public void deleteSenior(Long seniorId) {
-//        Senior existingSenior = seniorRepository.findById(seniorId)
-//                .orElseThrow(() -> new IllegalArgumentException("cannot find senior"));
-//        seniorRepository.delete(existingSenior);
 //    }
 }

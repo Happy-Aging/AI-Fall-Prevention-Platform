@@ -6,6 +6,7 @@ import happyaging.server.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -34,6 +35,12 @@ public class SeniorController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{seniorId}")
+    public ResponseEntity<Object> deleteSenior(@PathVariable Long seniorId) {
+        seniorService.deleteSenior(seniorId);
+        return ResponseEntity.ok().build();
+    }
+
 //    @GetMapping("/list")
 //    public List<SeniorResponseDTO> getSeniorList(Authentication authentication) {
 //        if (authentication == null) {
@@ -45,12 +52,5 @@ public class SeniorController {
 //    }
 //
 //
-//    @DeleteMapping("/{seniorId}")
-//    public ResponseEntity<Object> deleteSenior(Authentication authentication, @PathVariable Long seniorId) {
-//        if (authentication == null) {
-//            return null;
-//        }
-//        seniorService.deleteSenior(seniorId);
-//        return new ResponseEntity<>("delete senior success!", HttpStatus.OK);
-//    }
+
 }

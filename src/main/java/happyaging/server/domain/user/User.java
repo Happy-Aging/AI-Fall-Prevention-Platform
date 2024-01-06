@@ -1,22 +1,16 @@
 package happyaging.server.domain.user;
 
-import happyaging.server.domain.senior.Senior;
 import happyaging.server.dto.auth.JoinRequestDTO;
 import happyaging.server.dto.auth.SocialJoinRequestDTO;
 import happyaging.server.dto.user.UserInfoUpdateDTO;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,10 +50,6 @@ public class User {
 
     @Column(nullable = false)
     private LocalDate createdAt;
-
-    // TODO: 지울 예정
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Senior> seniorList = new ArrayList<>();
 
     public static User createFromJoin(JoinRequestDTO userJoinRequestDTO, BCryptPasswordEncoder encoder) {
         return User.builder()

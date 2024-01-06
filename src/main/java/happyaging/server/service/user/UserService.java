@@ -4,7 +4,7 @@ import happyaging.server.domain.user.User;
 import happyaging.server.dto.user.UserInfoDTO;
 import happyaging.server.dto.user.UserInfoUpdateDTO;
 import happyaging.server.exception.AppException;
-import happyaging.server.exception.errorcode.UserErrorCode;
+import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -46,8 +46,8 @@ public class UserService {
         return null;
     }
 
-    private User findUserById(Long userId) {
+    public User findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(UserErrorCode.INVALID_USER));
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_USER));
     }
 }

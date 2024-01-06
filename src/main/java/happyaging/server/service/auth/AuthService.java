@@ -8,8 +8,8 @@ import happyaging.server.dto.auth.LoginSuccessDTO;
 import happyaging.server.dto.auth.SocialJoinRequestDTO;
 import happyaging.server.dto.auth.SocialLoginRequestDTO;
 import happyaging.server.exception.AppException;
+import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.exception.errorcode.AuthErrorCode;
-import happyaging.server.exception.errorcode.UserErrorCode;
 import happyaging.server.repository.user.UserRepository;
 import happyaging.server.security.JwtUtil;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class AuthService {
     public LoginSuccessDTO checkRefreshToken(String refreshToken) {
         Long userId = JwtUtil.getUserIdFromToken(refreshToken);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(UserErrorCode.INVALID_USER));
+                .orElseThrow(() -> new AppException(AuthErrorCode.INVALID_TOKEN));
 
         if (JwtUtil.isExpired(refreshToken)) {
             throw new AppException(AuthErrorCode.INVALID_TOKEN);
@@ -124,13 +124,13 @@ public class AuthService {
 
     private void comparePassword(String password, String encodedPassword) {
         if (!encoder.matches(password, encodedPassword)) {
-            throw new AppException(UserErrorCode.INVALID_USER);
+            throw new AppException(AppErrorCode.INVALID_USER);
         }
     }
 
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(UserErrorCode.INVALID_USER));
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_USER));
     }
 
 }

@@ -1,36 +1,27 @@
 package happyaging.server.domain.senior;
 
-import happyaging.server.domain.survey.Survey;
 import happyaging.server.domain.user.User;
 import happyaging.server.dto.senior.SeniorRequestDTO;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@DynamicUpdate
 @Builder
 @Entity
 @Getter
-@Table(name = "senior")
 public class Senior {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,40 +31,41 @@ public class Senior {
     @Column(nullable = false)
     private String name;
 
-    @Column
-    private String sex;
-
-    @Column
-    private LocalDate birth;
-
-    @Column
-    private String residence;
-
     @Column(nullable = false)
     private String address;
 
-    @Column(name = "profile_image")
-    private String profile;
+    @Column(nullable = false)
+    private LocalDate birth;
+
+    private String phoneNumber;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Relation relation;
+
+    private Integer latestSurveyRank;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "senior", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Survey> surveyList = new ArrayList<>();
-
-    public void update(SeniorRequestDTO seniorRequestDTO) {
-        name = seniorRequestDTO.getName();
-        sex = seniorRequestDTO.getSex();
-        birth = seniorRequestDTO.getBirth();
-        residence = seniorRequestDTO.getResidence();
-        address = seniorRequestDTO.getAddress();
-        profile = seniorRequestDTO.getProfile();
+    public static Senior create(User user, SeniorRequestDTO seniorRequestDTO) {
+        return Senior.builder()
+                .name(seniorRequestDTO.getName())
+                .address(seniorRequestDTO.getAddress())
+                .birth(seniorRequestDTO.getBirth())
+                .phoneNumber(seniorRequestDTO.getPhoneNumber())
+                .relation(seniorRequestDTO.getRelation())
+                .latestSurveyRank(null)
+                .user(user)
+                .build();
     }
 
-    public void updateSeniorInfo(String sex, String residence, String birth) {
-        this.sex = sex;
-        this.residence = residence;
-        this.birth = LocalDate.parse(birth + "-01-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    public void update(SeniorRequestDTO seniorRequestDTO) {
+        this.name = seniorRequestDTO.getName();
+        this.address = seniorRequestDTO.getAddress();
+        this.birth = seniorRequestDTO.getBirth();
+        this.phoneNumber = seniorRequestDTO.getPhoneNumber();
+        this.relation = seniorRequestDTO.getRelation();
     }
 }

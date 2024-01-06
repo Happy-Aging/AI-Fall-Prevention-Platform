@@ -1,15 +1,16 @@
 package happyaging.server.service.senior;
 
 import happyaging.server.domain.senior.Senior;
-import happyaging.server.domain.survey.Survey;
 import happyaging.server.domain.user.User;
 import happyaging.server.dto.senior.SeniorRequestDTO;
 import happyaging.server.dto.senior.SeniorResponseDTO;
+import happyaging.server.exception.AppException;
+import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.repository.senior.SeniorRepository;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.Comparator;
+import happyaging.server.service.user.UserService;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,99 +18,42 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class SeniorService {
+    private final UserService userService;
+
     private final SeniorRepository seniorRepository;
 
-//    @Transactional
-//    public void createSenior(User user, SeniorRequestDTO seniorRequestDTO) {
-//        Senior senior = Senior.builder()
-//                .name(seniorRequestDTO.getName())
-//                .sex(seniorRequestDTO.getSex())
-//                .birth(seniorRequestDTO.getBirth())
-//                .residence(seniorRequestDTO.getResidence())
-//                .address(seniorRequestDTO.getAddress())
-//                .profile(seniorRequestDTO.getProfile())
-//                .user(user)
-//                .build();
-//        seniorRepository.save(senior);
-//    }
+    @Transactional
+    public Long createSenior(Long userId, SeniorRequestDTO seniorRequestDTO) {
+        User user = userService.findUserById(userId);
+        Senior senior = Senior.create(user, seniorRequestDTO);
+        seniorRepository.save(senior);
+        return senior.getId();
+    }
 
     @Transactional
-    public SeniorResponseDTO createSenior(SeniorRequestDTO seniorRequestDTO) {
-        Senior senior = Senior.builder()
-                .name(seniorRequestDTO.getName())
-                .sex(seniorRequestDTO.getSex())
-                .birth(seniorRequestDTO.getBirth())
-                .residence(seniorRequestDTO.getResidence())
-                .address(seniorRequestDTO.getAddress())
-                .profile(seniorRequestDTO.getProfile())
-                .user(null)
-                .build();
-        seniorRepository.save(senior);
-        return SeniorResponseDTO.builder()
-                .id(senior.getId())
-                .name(senior.getName())
-                .address(senior.getAddress())
-                .build();
+    public void updateSenior(Long seniorId, SeniorRequestDTO seniorRequestDTO) {
+        Senior senior = findSeniorById(seniorId);
+        senior.update(seniorRequestDTO);
+    }
+
+    @Transactional
+    public void deleteSenior(Long seniorId) {
+        Senior senior = findSeniorById(seniorId);
+        seniorRepository.delete(senior);
     }
 
     @Transactional(readOnly = true)
-    public List<SeniorResponseDTO> getSeniorList(User user) {
-        List<Senior> seniorList = user.getSeniorList();
-
-        return seniorList.stream()
-                .map(senior -> {
-                    return SeniorResponseDTO.builder()
-                            .id(senior.getId())
-                            .name(senior.getName())
-                            .age(calculateAge(senior.getBirth()))
-                            .address((senior.getAddress()))
-                            .profile(senior.getProfile())
-                            .rank(getRank(senior))
-                            .build();
-                })
+    public List<SeniorResponseDTO> readSeniors(Long userId) {
+        List<Senior> seniors = seniorRepository.findByUserId(userId);
+        return Optional.ofNullable(seniors)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(SeniorResponseDTO::create)
                 .toList();
     }
 
-    @Transactional(readOnly = true)
-    public Senior findSenior(Long seniorId) {
+    private Senior findSeniorById(Long seniorId) {
         return seniorRepository.findById(seniorId)
-                .orElseThrow(() -> new IllegalArgumentException("cannot find senior"));
-    }
-
-    private Integer calculateAge(LocalDate birth) {
-        LocalDate today = LocalDate.now();
-        Period period = Period.between(birth, today);
-        return period.getYears();
-    }
-
-    private Integer getRank(Senior senior) {
-        Survey mostRecentSurvey = getMostRecentSurvey(senior);
-        if (mostRecentSurvey == null) {
-            return null;
-        }
-        if (mostRecentSurvey.getResult() == null) {
-            return null;
-        }
-        return mostRecentSurvey.getResult().getRank();
-    }
-
-    private Survey getMostRecentSurvey(Senior senior) {
-        return senior.getSurveyList().stream()
-                .max(Comparator.comparing(Survey::getDate))
-                .orElse(null);
-    }
-
-    public void updateSenior(Long seniorId, SeniorRequestDTO seniorRequestDTO) {
-        Senior existingSenior = seniorRepository.findById(seniorId)
-                .orElseThrow(() -> new IllegalArgumentException("cannot find senior"));
-
-        existingSenior.update(seniorRequestDTO);
-        seniorRepository.save(existingSenior);
-    }
-
-    public void deleteSenior(Long seniorId) {
-        Senior existingSenior = seniorRepository.findById(seniorId)
-                .orElseThrow(() -> new IllegalArgumentException("cannot find senior"));
-        seniorRepository.delete(existingSenior);
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_SENIOR));
     }
 }

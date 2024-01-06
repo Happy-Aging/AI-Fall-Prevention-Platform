@@ -6,11 +6,10 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum AuthErrorCode implements ErrorCode {
     EXTERNAL_SERVER(HttpStatus.INTERNAL_SERVER_ERROR, "email을 받아올 수 없습니다."),
-    INVALID_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 accessToken 입니다."),
-    INVALID_USER(HttpStatus.UNAUTHORIZED, "가입되지 않은 회원입니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 Token 입니다."),
     INVALID_LOGIN_METHOD(HttpStatus.CONFLICT, "올바르지 않은 로그인 방식입니다."),
     EMAIL_DUPLICATED(HttpStatus.CONFLICT, "중복된 ID 입니다."),
-    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "token이 만료되었습니다.");
+    INVALID_EXTERNAL_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 소셜 로그인 토큰입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

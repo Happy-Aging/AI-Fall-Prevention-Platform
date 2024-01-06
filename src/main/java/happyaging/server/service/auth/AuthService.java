@@ -9,11 +9,11 @@ import happyaging.server.dto.auth.SocialJoinRequestDTO;
 import happyaging.server.dto.auth.SocialLoginRequestDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AuthErrorCode;
+import happyaging.server.exception.errorcode.UserErrorCode;
 import happyaging.server.repository.user.UserRepository;
 import happyaging.server.security.JwtUtil;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -26,7 +26,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -72,10 +71,10 @@ public class AuthService {
     public LoginSuccessDTO checkRefreshToken(String refreshToken) {
         Long userId = JwtUtil.getUserIdFromToken(refreshToken);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(AuthErrorCode.INVALID_USER));
+                .orElseThrow(() -> new AppException(UserErrorCode.INVALID_USER));
 
         if (JwtUtil.isExpired(refreshToken)) {
-            throw new AppException(AuthErrorCode.TOKEN_EXPIRED);
+            throw new AppException(AuthErrorCode.INVALID_TOKEN);
         }
         return JwtUtil.createTokens(user);
     }
@@ -87,7 +86,7 @@ public class AuthService {
             HttpEntity<String> header = createHeader("Bearer " + accessToken);
             return requestEmail(url, header);
         }
-        throw new AppException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+        throw new AppException(AuthErrorCode.INVALID_EXTERNAL_TOKEN);
     }
 
     private void checkDuplicateEmail(String email) {
@@ -125,13 +124,13 @@ public class AuthService {
 
     private void comparePassword(String password, String encodedPassword) {
         if (!encoder.matches(password, encodedPassword)) {
-            throw new AppException(AuthErrorCode.INVALID_USER);
+            throw new AppException(UserErrorCode.INVALID_USER);
         }
     }
 
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(AuthErrorCode.INVALID_USER));
+                .orElseThrow(() -> new AppException(UserErrorCode.INVALID_USER));
     }
 
 }

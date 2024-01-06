@@ -3,6 +3,7 @@ package happyaging.server.domain.user;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.dto.auth.JoinRequestDTO;
 import happyaging.server.dto.auth.SocialJoinRequestDTO;
+import happyaging.server.dto.user.UserInfoUpdateDTO;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -82,5 +83,14 @@ public class User {
                 .vendor(socialJoinRequestDTO.getVendor())
                 .createdAt(LocalDate.now())
                 .build();
+    }
+
+    public void update(UserInfoUpdateDTO userInfoUpdateDTO, BCryptPasswordEncoder encoder) {
+        this.name = userInfoUpdateDTO.getName();
+        this.phoneNumber = userInfoUpdateDTO.getPhoneNumber();
+        this.userType = userInfoUpdateDTO.getUserType();
+
+        String password = userInfoUpdateDTO.getPassword();
+        this.password = password == null ? null : encoder.encode(password);
     }
 }

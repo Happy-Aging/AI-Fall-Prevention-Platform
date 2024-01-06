@@ -29,7 +29,7 @@ public class JwtUtil {
             return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
                     .getBody().get("userId", Long.class);
         } catch (ExpiredJwtException e) {
-            throw new AppException(AuthErrorCode.TOKEN_EXPIRED);
+            throw new AppException(AuthErrorCode.INVALID_TOKEN);
         }
     }
 

@@ -45,6 +45,6 @@ public class AuthController {
 
     @PostMapping("/refreshToken")
     public LoginSuccessDTO refreshToken(@RequestHeader("Authorization") String refreshToken) {
-        return authService.checkRefreshToken(refreshToken);
+        return authService.checkRefreshToken(refreshToken.split(" ")[1]);
     }
 }

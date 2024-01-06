@@ -1,6 +1,8 @@
 package happyaging.server.security;
 
 import happyaging.server.domain.user.User;
+import happyaging.server.exception.AppException;
+import happyaging.server.exception.errorcode.AuthErrorCode;
 import happyaging.server.repository.user.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,30 +32,38 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        try {
 
-        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (isValidHeader(authorization)) {
+            String requestURI = request.getRequestURI();
+            if (requestURI.startsWith("/auth/")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (isInValidHeader(authorization)) {
+                throw new AppException(AuthErrorCode.INVALID_TOKEN);
+            }
+
+            String token = authorization.split(TOKEN_DELIMITER)[TOKEN_INDEX];
+            if (JwtUtil.isExpired(token)) {
+                throw new AppException(AuthErrorCode.INVALID_TOKEN);
+            }
+
+            Long userId = JwtUtil.getUserIdFromToken(token);
+            if (isInvalidUser(userId)) {
+                throw new AppException(AuthErrorCode.INVALID_TOKEN);
+            }
+
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("USER")));
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             filterChain.doFilter(request, response);
-            return;
+        } catch (AppException e) {
+            response.setStatus(e.getErrorCode().getHttpStatus().value());
+            response.getWriter().write(e.getErrorCode().getMessage());
         }
-
-        String token = authorization.split(TOKEN_DELIMITER)[TOKEN_INDEX];
-        if (JwtUtil.isExpired(token)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        Long userId = JwtUtil.getUserIdFromToken(token);
-        if (isInvalidUser(userId)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("USER")));
-        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-        filterChain.doFilter(request, response);
     }
 
     private boolean isInvalidUser(Long userId) {
@@ -61,7 +71,7 @@ public class JwtFilter extends OncePerRequestFilter {
         return user == null;
     }
 
-    private static boolean isValidHeader(String authorization) {
+    private static boolean isInValidHeader(String authorization) {
         return authorization == null || !authorization.startsWith(TOKEN_PREFIX);
     }
 }

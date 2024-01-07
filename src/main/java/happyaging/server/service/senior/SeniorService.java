@@ -18,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class SeniorService {
-    private final UserService userService;
 
+    private final UserService userService;
     private final SeniorRepository seniorRepository;
 
     @Transactional
@@ -44,12 +44,16 @@ public class SeniorService {
 
     @Transactional(readOnly = true)
     public List<SeniorResponseDTO> readSeniors(Long userId) {
-        List<Senior> seniors = seniorRepository.findByUserId(userId);
-        return Optional.ofNullable(seniors)
-                .orElseGet(Collections::emptyList)
-                .stream()
+        List<Senior> seniors = findSeniorByUserId(userId);
+        return seniors.stream()
                 .map(SeniorResponseDTO::create)
                 .toList();
+    }
+
+    public List<Senior> findSeniorByUserId(Long userId) {
+        List<Senior> seniors = seniorRepository.findByUserId(userId);
+        return Optional.ofNullable(seniors)
+                .orElseGet(Collections::emptyList);
     }
 
     private Senior findSeniorById(Long seniorId) {

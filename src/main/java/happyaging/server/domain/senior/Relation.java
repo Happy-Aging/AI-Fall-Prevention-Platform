@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.stream.Stream;
 
 public enum Relation {
-    SELF, FAMILY, CARE_SENIOR;
+    SELF, FAMILY, CARE_SENIOR, NOTHING;
 
     @JsonCreator
     public static Relation toRelation(String relation) {

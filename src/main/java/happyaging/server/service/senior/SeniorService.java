@@ -1,17 +1,13 @@
 package happyaging.server.service.senior;
 
 import happyaging.server.domain.senior.Senior;
-import happyaging.server.domain.survey.Survey;
 import happyaging.server.domain.user.User;
 import happyaging.server.dto.senior.SeniorRequestDTO;
 import happyaging.server.dto.senior.SeniorResponseDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.repository.senior.SeniorRepository;
-import happyaging.server.repository.survey.SurveyRepository;
 import happyaging.server.repository.user.UserRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -25,10 +21,6 @@ public class SeniorService {
 
     private final UserRepository userRepository;
     private final SeniorRepository seniorRepository;
-    private final SurveyRepository surveyRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Transactional
     public Long createSenior(Long userId, SeniorRequestDTO seniorRequestDTO) {
@@ -48,11 +40,7 @@ public class SeniorService {
     @Transactional
     public void deleteSenior(Long seniorId) {
         Senior senior = findSeniorById(seniorId);
-        surveyRepository.findBySeniorId(seniorId)
-                .forEach(Survey::deleteSenior);
-        entityManager.flush();
-
-        seniorRepository.delete(senior);
+        senior.delete();
     }
 
     @Transactional(readOnly = true)

@@ -37,6 +37,10 @@ public class Senior {
     @Column(nullable = false)
     private LocalDate birth;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Sex sex;
+
     private String phoneNumber;
 
     @Column(nullable = false)
@@ -56,6 +60,7 @@ public class Senior {
                 .birth(seniorRequestDTO.getBirth())
                 .phoneNumber(seniorRequestDTO.getPhoneNumber())
                 .relation(seniorRequestDTO.getRelation())
+                .sex(seniorRequestDTO.getSex())
                 .latestSurveyRank(null)
                 .user(user)
                 .build();
@@ -67,5 +72,12 @@ public class Senior {
         this.birth = seniorRequestDTO.getBirth();
         this.phoneNumber = seniorRequestDTO.getPhoneNumber();
         this.relation = seniorRequestDTO.getRelation();
+    }
+
+    public void delete() {
+        this.name = "";
+        this.phoneNumber = null;
+        this.relation = Relation.NOTHING;
+        this.user = null;
     }
 }

@@ -48,7 +48,6 @@ public class UserService {
                 .map(Senior::getId)
                 .forEach(seniorService::deleteSenior);
         entityManager.flush();
-        log.info("============");
 
         User user = findUserById(userId);
         userRepository.delete(user);

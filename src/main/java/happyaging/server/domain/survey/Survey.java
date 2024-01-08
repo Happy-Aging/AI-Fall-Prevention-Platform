@@ -42,8 +42,4 @@ public class Survey {
 
     @OneToOne(mappedBy = "survey", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Result result;
-
-    public void deleteSenior() {
-        this.senior = null;
-    }
 }

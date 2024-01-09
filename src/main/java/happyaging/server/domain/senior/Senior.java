@@ -28,7 +28,7 @@ public class Senior {
     @Column(name = "senior_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column
     private String name;
 
     @Column(nullable = false)
@@ -75,7 +75,7 @@ public class Senior {
     }
 
     public void delete() {
-        this.name = "";
+        this.name = null;
         this.phoneNumber = null;
         this.relation = Relation.NOTHING;
         this.user = null;

@@ -1,13 +1,34 @@
 package happyaging.server.service.survey;
 
-import happyaging.server.repository.survey.SurveyRepository;
+import happyaging.server.domain.question.Question;
+import happyaging.server.dto.survey.OptionDTO;
+import happyaging.server.dto.survey.SurveyResponseDTO;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class SurveyService {
-    private final SurveyRepository surveyRepository;
+    
+    @Transactional(readOnly = true)
+    public List<SurveyResponseDTO> readSurvey(List<Question> questions) {
+        return questions.stream()
+                .map(this::createSurveyResponseDTOS)
+                .toList();
+    }
+
+    private SurveyResponseDTO createSurveyResponseDTOS(Question question) {
+        List<OptionDTO> optionDTOS = createOptionDTOs(question);
+        return SurveyResponseDTO.create(question, optionDTOS);
+    }
+
+    private static List<OptionDTO> createOptionDTOs(Question question) {
+        return question.getOptions().stream()
+                .map(OptionDTO::create)
+                .toList();
+    }
 
 //    @Transactional
 //    public Survey createSurvey(Senior senior) {

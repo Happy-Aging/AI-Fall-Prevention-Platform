@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 public enum QuestionType {
     SENIOR_INFO("시니어 정보"),
+    FALL_EXPERIENCE("낙상경험"),
     HEALTH("건강 위험도"),
     ENVIRONMENT("주거환경");
 

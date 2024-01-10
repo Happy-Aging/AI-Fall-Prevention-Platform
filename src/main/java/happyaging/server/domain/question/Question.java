@@ -38,10 +38,11 @@ public class Question {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private QuestionType type;
+    private QuestionType questionType;
 
     @Column(nullable = false)
-    private Boolean isSubjective;
+    @Enumerated(EnumType.STRING)
+    private ResponseType responseType;
 
     @OneToMany(mappedBy = "question")
     private List<Option> options = new ArrayList<>();

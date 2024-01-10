@@ -81,7 +81,6 @@ public class User {
     public void update(UserInfoUpdateDTO userInfoUpdateDTO, BCryptPasswordEncoder encoder) {
         this.name = userInfoUpdateDTO.getName();
         this.phoneNumber = userInfoUpdateDTO.getPhoneNumber();
-        this.userType = userInfoUpdateDTO.getUserType();
 
         String password = userInfoUpdateDTO.getPassword();
         this.password = password == null ? null : encoder.encode(password);

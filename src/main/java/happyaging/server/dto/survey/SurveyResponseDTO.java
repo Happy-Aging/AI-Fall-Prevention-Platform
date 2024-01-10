@@ -1,6 +1,7 @@
 package happyaging.server.dto.survey;
 
 import happyaging.server.domain.question.Question;
+import happyaging.server.domain.question.ResponseType;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,8 +14,8 @@ public class SurveyResponseDTO {
     private Long questionId;
     private String number;
     private String content;
-    private String type;
-    private Boolean isSubjective;
+    private String questionType;
+    private ResponseType responseType;
     private List<OptionDTO> options;
 
     public static SurveyResponseDTO create(Question question, List<OptionDTO> optionDTOS) {
@@ -22,8 +23,8 @@ public class SurveyResponseDTO {
                 .questionId(question.getId())
                 .number(question.getNumber())
                 .content(question.getContent())
-                .type(question.getType().getType())
-                .isSubjective(question.getIsSubjective())
+                .questionType(question.getQuestionType().getType())
+                .responseType(question.getResponseType())
                 .options(optionDTOS)
                 .build();
     }

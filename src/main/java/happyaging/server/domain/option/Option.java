@@ -26,9 +26,6 @@ public class Option {
     private Long id;
 
     @Column(nullable = false)
-    private Integer number;
-
-    @Column(nullable = false)
     private String content;
 
     private String image;

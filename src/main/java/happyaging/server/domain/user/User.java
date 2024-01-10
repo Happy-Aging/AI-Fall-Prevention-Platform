@@ -60,7 +60,7 @@ public class User {
                 .email(userJoinRequestDTO.getEmail())
                 .password(encoder.encode(userJoinRequestDTO.getPassword()))
                 .phoneNumber(userJoinRequestDTO.getPhoneNumber())
-                .userType(userJoinRequestDTO.getUserType())
+                .userType(UserType.USER)
                 .vendor(userJoinRequestDTO.getVendor())
                 .createdAt(LocalDate.now())
                 .build();
@@ -72,7 +72,7 @@ public class User {
                 .email(socialJoinRequestDTO.getEmail())
                 .password(null)
                 .phoneNumber(socialJoinRequestDTO.getPhoneNumber())
-                .userType(socialJoinRequestDTO.getUserType())
+                .userType(UserType.USER)
                 .vendor(socialJoinRequestDTO.getVendor())
                 .createdAt(LocalDate.now())
                 .build();

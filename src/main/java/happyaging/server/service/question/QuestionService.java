@@ -1,6 +1,8 @@
 package happyaging.server.service.question;
 
 import happyaging.server.domain.question.Question;
+import happyaging.server.exception.AppException;
+import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.repository.question.QuestionRepository;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +20,12 @@ public class QuestionService {
     public List<Question> readAllQuestions() {
         List<Question> questions = questionRepository.findAll();
         return sortQuestions(questions);
+    }
+
+    @Transactional(readOnly = true)
+    public Question findQuestion(Long questionId) {
+        return questionRepository.findById(questionId)
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_QUESTION));
     }
 
     private List<Question> sortQuestions(List<Question> questions) {

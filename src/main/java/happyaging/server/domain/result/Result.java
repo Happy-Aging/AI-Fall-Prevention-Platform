@@ -9,20 +9,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@DynamicUpdate
 @Builder
 @Entity
 @Getter
-@Table(name = "result")
 public class Result {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,9 +27,6 @@ public class Result {
 
     @Column(nullable = false)
     private Integer rank;
-
-    @Column(nullable = false)
-    private Double totalScore;
 
     @Column(length = 500, nullable = false)
     private String summary;
@@ -45,4 +38,12 @@ public class Result {
     @JoinColumn(name = "survey_id")
     private Survey survey;
 
+    public static Result create(Survey survey) {
+        return Result.builder()
+                .rank(1)
+                .summary("500자 정도 하면 될까요? test")
+                .report("test.pdf")
+                .survey(survey)
+                .build();
+    }
 }

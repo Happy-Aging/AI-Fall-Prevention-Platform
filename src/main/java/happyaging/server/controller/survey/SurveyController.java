@@ -2,6 +2,7 @@ package happyaging.server.controller.survey;
 
 import happyaging.server.domain.question.Question;
 import happyaging.server.dto.response.ResponseRequestDTO;
+import happyaging.server.dto.result.ResultResponseDTO;
 import happyaging.server.dto.survey.SurveyResponseDTO;
 import happyaging.server.service.question.QuestionService;
 import happyaging.server.service.survey.SurveyService;
@@ -31,10 +32,10 @@ public class SurveyController {
     }
 
     @PostMapping("/{seniorId}")
-    public ResponseEntity<Long> submitSurvey(@PathVariable Long seniorId,
-                                             @RequestBody @Valid List<ResponseRequestDTO> responseRequestDTOS) {
-        Long surveyId = surveyService.submit(seniorId, responseRequestDTOS);
-        return ResponseEntity.ok().body(surveyId);
+    public ResponseEntity<ResultResponseDTO> submitSurvey(@PathVariable Long seniorId,
+                                                          @RequestBody @Valid List<ResponseRequestDTO> responseRequestDTOS) {
+        ResultResponseDTO resultResponseDTO = surveyService.submit(seniorId, responseRequestDTOS);
+        return ResponseEntity.ok().body(resultResponseDTO);
     }
 
 //    @GetMapping("/{resultId}/download")

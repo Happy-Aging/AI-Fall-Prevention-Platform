@@ -8,7 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +26,7 @@ public class Survey {
     private Long id;
 
     @Column(nullable = false)
-    private LocalDateTime date;
+    private LocalDate date;
 
     @ManyToOne
     @JoinColumn(name = "senior_id")
@@ -34,7 +34,7 @@ public class Survey {
 
     public static Survey create(Senior senior) {
         return Survey.builder()
-                .date(LocalDateTime.now())
+                .date(LocalDate.now())
                 .senior(senior)
                 .build();
     }

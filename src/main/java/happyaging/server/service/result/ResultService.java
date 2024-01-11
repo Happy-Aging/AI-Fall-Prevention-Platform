@@ -1,8 +1,13 @@
 package happyaging.server.service.result;
 
 import com.google.gson.Gson;
+import happyaging.server.domain.response.Response;
+import happyaging.server.domain.result.Result;
+import happyaging.server.domain.senior.Senior;
+import happyaging.server.domain.survey.Survey;
 import happyaging.server.repository.result.ResultRepository;
 import happyaging.server.service.question.QuestionService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +17,13 @@ public class ResultService {
     private static final Gson gson = new Gson();
     private final ResultRepository resultRepository;
     private final QuestionService questionService;
+
+    public Result create(Senior senior, Survey survey, List<Response> responses) {
+        //TODO: AI server에 보내줄 AiServerRequestDTO 만들고 보내기
+        //TODO: AI 서버에서 응답 받은걸로 AiServerResponseDTO 만들기로 수정
+        Result result = Result.create(survey);
+        return resultRepository.save(result);
+    }
 //
 //    @Transactional(readOnly = true)
 //    public Result findResult(Long resultId) {

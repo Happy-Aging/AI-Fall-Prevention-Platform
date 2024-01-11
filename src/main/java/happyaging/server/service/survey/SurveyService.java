@@ -43,6 +43,7 @@ public class SurveyService {
         Survey survey = createSurvey(senior);
         List<Response> responses = responseService.saveResponse(responseRequestDTOS, survey);
         Result result = resultService.create(senior, survey, responses);
+        senior.updateRank(result.getRank());
         return ResultResponseDTO.create(survey, result);
     }
 

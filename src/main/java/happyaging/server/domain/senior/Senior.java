@@ -80,4 +80,8 @@ public class Senior {
         this.relation = Relation.NOTHING;
         this.user = null;
     }
+
+    public void updateRank(Integer rank) {
+        this.latestSurveyRank = rank;
+    }
 }

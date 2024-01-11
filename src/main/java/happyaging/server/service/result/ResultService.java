@@ -5,6 +5,8 @@ import happyaging.server.domain.response.Response;
 import happyaging.server.domain.result.Result;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.survey.Survey;
+import happyaging.server.exception.AppException;
+import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.repository.result.ResultRepository;
 import happyaging.server.service.question.QuestionService;
 import java.util.List;
@@ -25,6 +27,11 @@ public class ResultService {
         //TODO: AI 서버에서 응답 받은걸로 AiServerResponseDTO 만들기로 수정
         Result result = Result.create(survey);
         return resultRepository.save(result);
+    }
+
+    public Result findBySurvey(Survey survey) {
+        return resultRepository.findBySurveyId(survey.getId())
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_RESULT));
     }
 //
 //    @Transactional(readOnly = true)

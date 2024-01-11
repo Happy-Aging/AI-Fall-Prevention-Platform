@@ -9,5 +9,5 @@ import lombok.Getter;
 @Builder
 public class AiServerRequestDTO {
     private String name;
-    private List<ResponseInfoDTO> responseInfo;
+    private List<ResponseInfoDTO> data;
 }

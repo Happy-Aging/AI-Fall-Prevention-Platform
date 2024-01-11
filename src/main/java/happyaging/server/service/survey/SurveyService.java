@@ -15,6 +15,7 @@ import happyaging.server.repository.senior.SeniorRepository;
 import happyaging.server.repository.survey.SurveyRepository;
 import happyaging.server.service.response.ResponseService;
 import happyaging.server.service.result.ResultService;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,21 @@ public class SurveyService {
         return ResultResponseDTO.create(survey, result);
     }
 
+    @Transactional(readOnly = true)
+    public List<ResultResponseDTO> findSurveys(Long seniorId) {
+        List<Survey> surveys = surveyRepository.findAllBySeniorId(seniorId);
+        return creatResultResponseDTOS(surveys);
+    }
+
+    private List<ResultResponseDTO> creatResultResponseDTOS(List<Survey> surveys) {
+        List<ResultResponseDTO> resultResponseDTOS = new ArrayList<>();
+        for (Survey survey : surveys) {
+            Result result = resultService.findBySurvey(survey);
+            resultResponseDTOS.add(ResultResponseDTO.create(survey, result));
+        }
+        return resultResponseDTOS;
+    }
+
     private SurveyResponseDTO createSurveyResponseDTOS(Question question) {
         List<OptionDTO> optionDTOS = createOptionDTOs(question);
         return SurveyResponseDTO.create(question, optionDTOS);
@@ -60,7 +76,7 @@ public class SurveyService {
         Survey survey = Survey.create(senior);
         return surveyRepository.save(survey);
     }
-    
+
     private Senior findSenior(Long seniorId) {
         return seniorRepository.findById(seniorId)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_SENIOR));

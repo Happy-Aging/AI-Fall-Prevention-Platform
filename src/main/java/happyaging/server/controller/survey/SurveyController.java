@@ -38,6 +38,12 @@ public class SurveyController {
         return ResponseEntity.ok().body(resultResponseDTO);
     }
 
+    @GetMapping("/{seniorId}")
+    public ResponseEntity<List<ResultResponseDTO>> readSeniorSurveys(@PathVariable Long seniorId) {
+        List<ResultResponseDTO> surveys = surveyService.findSurveys(seniorId);
+        return ResponseEntity.ok().body(surveys);
+    }
+
 //    @GetMapping("/{resultId}/download")
 //    public ResponseEntity<Resource> downloadReport(@PathVariable Long resultId) {
 //        Result result = resultService.findResult(resultId);

@@ -42,7 +42,7 @@ public class Result {
         return Result.builder()
                 .rank(1)
                 .summary("500자 정도 하면 될까요? test")
-                .report("test.pdf")
+                .report("/home/ubuntu/report/test.pdf")
                 .survey(survey)
                 .build();
     }

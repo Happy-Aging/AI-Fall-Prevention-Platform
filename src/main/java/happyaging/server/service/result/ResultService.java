@@ -8,18 +8,24 @@ import happyaging.server.domain.survey.Survey;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.repository.result.ResultRepository;
-import happyaging.server.service.question.QuestionService;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ResultService {
+    private static final String DISPOSITION_PREFIX = "attachment; filename*=UTF-8''";
     private static final Gson gson = new Gson();
+
     private final ResultRepository resultRepository;
-    private final QuestionService questionService;
 
     @Transactional
     public Result create(Senior senior, Survey survey, List<Response> responses) {
@@ -29,16 +35,54 @@ public class ResultService {
         return resultRepository.save(result);
     }
 
+    @Transactional(readOnly = true)
     public Result findBySurvey(Survey survey) {
         return resultRepository.findBySurveyId(survey.getId())
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_RESULT));
     }
-//
-//    @Transactional(readOnly = true)
-//    public Result findResult(Long resultId) {
-//        return resultRepository.findById(resultId)
-//                .orElseThrow(() -> new IllegalArgumentException("cannot find result"));
-//    }
+
+    @Transactional(readOnly = true)
+    public Resource findReport(Long resultId) {
+        Result result = findResult(resultId);
+        return getResource(result);
+    }
+
+    private Result findResult(Long resultId) {
+        return resultRepository.findById(resultId)
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_RESULT));
+    }
+
+    private Resource getResource(Result result) {
+        String filePath = result.getReport();
+        System.out.println(filePath);
+        try {
+            Path file = Paths.get(filePath).normalize();
+            return checkResource(new UrlResource(file.toUri()));
+        } catch (Exception e) {
+            throw new AppException(AppErrorCode.INVALID_FILE);
+        }
+    }
+
+    private Resource checkResource(Resource resource) {
+        if (resource.exists()) {
+            return resource;
+        }
+        throw new AppException(AppErrorCode.INVALID_FILE);
+    }
+    
+    public String createContentDisposition(Resource resource) {
+        String filename = checkFileName(resource.getFilename());
+        String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8);
+        return DISPOSITION_PREFIX + encodedFilename;
+    }
+
+    private static String checkFileName(String filename) {
+        if (filename == null) {
+            throw new AppException(AppErrorCode.INVALID_FILE);
+        }
+        return filename;
+    }
+
 //
 //    @Transactional
 //    public ResultResponseDTO createResult(Survey survey, List<Response> responses) {
@@ -56,35 +100,6 @@ public class ResultService {
 //        return createResultResponseDTO(result, survey);
 //    }
 //
-//    @Transactional(readOnly = true)
-//    public ResponseEntity<Resource> getReport(Result result) {
-//        String filePath = result.getReport();
-////        String filePath = "/home/ubuntu/AI_server/CODE/reports/과제08.pdf";
-//        System.out.println(filePath);
-//        try {
-//            Path file = Paths.get(filePath).normalize();
-//            Resource resource = new UrlResource(file.toUri());
-//            if (resource.exists()) {
-//                String filename = resource.getFilename();
-//                if (filename == null) {
-//                    throw new IllegalArgumentException("Filename can not be null");
-//                }
-//                String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8);
-//                String contentDisposition = "attachment; filename*=UTF-8''" + encodedFilename;
-//
-//                return ResponseEntity.ok()
-//                        .contentType(MediaType.APPLICATION_PDF)
-//                        .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-//                        .body(resource);
-//            } else {
-//                throw new IllegalArgumentException("cannot find report");
-//            }
-//        } catch (Exception e) {
-//            System.out.println("파일에러");
-//            return ResponseEntity.badRequest()
-//                    .build();
-//        }
-//    }
 //
 //    private ReportResponseDTO createReport(SurveyResponseDTO dataForReport) {
 //        HttpURLConnection con = null;

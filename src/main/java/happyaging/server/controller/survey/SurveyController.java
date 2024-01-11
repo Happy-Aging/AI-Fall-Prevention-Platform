@@ -43,10 +43,4 @@ public class SurveyController {
         List<ResultResponseDTO> surveys = surveyService.findSurveys(seniorId);
         return ResponseEntity.ok().body(surveys);
     }
-
-//    @GetMapping("/{resultId}/download")
-//    public ResponseEntity<Resource> downloadReport(@PathVariable Long resultId) {
-//        Result result = resultService.findResult(resultId);
-//        return resultService.getReport(result);
-//    }
 }

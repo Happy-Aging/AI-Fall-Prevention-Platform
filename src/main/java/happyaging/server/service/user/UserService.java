@@ -61,6 +61,7 @@ public class UserService {
         return null;
     }
 
+    @Transactional(readOnly = true)
     public User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_USER));

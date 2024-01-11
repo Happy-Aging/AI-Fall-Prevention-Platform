@@ -10,6 +10,7 @@ import happyaging.server.service.question.QuestionService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class ResultService {
     private final ResultRepository resultRepository;
     private final QuestionService questionService;
 
+    @Transactional
     public Result create(Senior senior, Survey survey, List<Response> responses) {
         //TODO: AI server에 보내줄 AiServerRequestDTO 만들고 보내기
         //TODO: AI 서버에서 응답 받은걸로 AiServerResponseDTO 만들기로 수정

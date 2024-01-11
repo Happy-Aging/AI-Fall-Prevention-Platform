@@ -51,12 +51,14 @@ public class SeniorService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<Senior> findSeniorByUserId(Long userId) {
         List<Senior> seniors = seniorRepository.findByUserId(userId);
         return Optional.ofNullable(seniors)
                 .orElseGet(Collections::emptyList);
     }
 
+    @Transactional(readOnly = true)
     public Senior findSeniorById(Long seniorId) {
         return seniorRepository.findById(seniorId)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_SENIOR));

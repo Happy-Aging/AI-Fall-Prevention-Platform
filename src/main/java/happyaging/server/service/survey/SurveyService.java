@@ -48,7 +48,7 @@ public class SurveyService {
 
     @Transactional(readOnly = true)
     public List<ResultResponseDTO> findSurveys(Long seniorId) {
-        List<Survey> surveys = surveyRepository.findAllBySeniorId(seniorId);
+        List<Survey> surveys = surveyRepository.findAllBySeniorIdOrderByDateDescIdDesc(seniorId);
         return creatResultResponseDTOS(surveys);
     }
 

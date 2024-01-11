@@ -2,7 +2,7 @@ spring:
   jpa:
     hibernate:
       database-platform: org.hibernate.dialect.MariaDB106Dialect
-      ddl-auto: create
+      ddl-auto: update
       show_sql: true
   config:
     additional-location: classpath:application-secret.yml

@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SurveyRepository extends JpaRepository<Survey, Long> {
-    List<Survey> findAllBySeniorId(Long seniorId);
+
+    List<Survey> findAllBySeniorIdOrderByDateDescIdDesc(Long seniorId);
 }

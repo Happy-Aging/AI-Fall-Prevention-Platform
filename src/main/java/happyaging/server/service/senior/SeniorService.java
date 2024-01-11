@@ -57,7 +57,7 @@ public class SeniorService {
                 .orElseGet(Collections::emptyList);
     }
 
-    private Senior findSeniorById(Long seniorId) {
+    public Senior findSeniorById(Long seniorId) {
         return seniorRepository.findById(seniorId)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_SENIOR));
     }

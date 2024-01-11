@@ -1,13 +1,14 @@
-package happyaging.server.dto.survey;
+package happyaging.server.dto.result;
 
 
+import happyaging.server.dto.survey.SurveyResponseDTO;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class ResultDTO {
+public class ResultRequestDTO {
     private String name;
     private Integer rank;
     private Double totalScore;

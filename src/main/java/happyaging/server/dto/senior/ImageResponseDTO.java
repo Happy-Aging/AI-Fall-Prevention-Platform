@@ -17,7 +17,7 @@ public class ImageResponseDTO {
         return ImageResponseDTO.builder()
                 .image(exampleImage.getImage())
                 .location(exampleImage.getLocation().getName())
-                .description(Arrays.stream(exampleImage.getDescription().split("\\|")).toList())
+                .description(Arrays.stream(exampleImage.getDescription().split(" \\| ")).toList())
                 .build();
     }
 }

@@ -2,6 +2,8 @@ package happyaging.server.dto.survey;
 
 import happyaging.server.domain.question.Question;
 import happyaging.server.domain.question.ResponseType;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +18,7 @@ public class SurveyResponseDTO {
     private String content;
     private String questionType;
     private ResponseType responseType;
+    private List<String> image;
     private List<OptionDTO> options;
 
     public static SurveyResponseDTO create(Question question, List<OptionDTO> optionDTOS) {
@@ -25,7 +28,15 @@ public class SurveyResponseDTO {
                 .content(question.getContent())
                 .questionType(question.getQuestionType().getType())
                 .responseType(question.getResponseType())
+                .image(toImageList(question.getImage()))
                 .options(optionDTOS)
                 .build();
+    }
+
+    private static List<String> toImageList(String image) {
+        if (image == null) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(image.split(" \\| ")).toList();
     }
 }

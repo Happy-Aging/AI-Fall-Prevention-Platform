@@ -11,13 +11,11 @@ import lombok.Getter;
 public class OptionDTO {
     private Long optionId;
     private String content;
-    private String image;
 
     public static OptionDTO create(Option option) {
         return OptionDTO.builder()
                 .optionId(option.getId())
                 .content(option.getContent())
-                .image(option.getImage())
                 .build();
     }
 }

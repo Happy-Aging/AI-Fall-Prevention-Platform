@@ -9,7 +9,6 @@ import happyaging.server.service.survey.SurveyService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,15 +31,13 @@ public class SurveyController {
     }
 
     @PostMapping("/{seniorId}")
-    public ResponseEntity<ResultResponseDTO> submitSurvey(@PathVariable Long seniorId,
-                                                          @RequestBody @Valid List<ResponseRequestDTO> responseRequestDTOS) {
-        ResultResponseDTO resultResponseDTO = surveyService.submit(seniorId, responseRequestDTOS);
-        return ResponseEntity.ok().body(resultResponseDTO);
+    public ResultResponseDTO submitSurvey(@PathVariable Long seniorId,
+                                          @RequestBody @Valid List<ResponseRequestDTO> responseRequestDTOS) {
+        return surveyService.submit(seniorId, responseRequestDTOS);
     }
 
     @GetMapping("/{seniorId}")
-    public ResponseEntity<List<ResultResponseDTO>> readSeniorSurveys(@PathVariable Long seniorId) {
-        List<ResultResponseDTO> surveys = surveyService.findSurveys(seniorId);
-        return ResponseEntity.ok().body(surveys);
+    public List<ResultResponseDTO> readSeniorSurveys(@PathVariable Long seniorId) {
+        return surveyService.findSurveys(seniorId);
     }
 }

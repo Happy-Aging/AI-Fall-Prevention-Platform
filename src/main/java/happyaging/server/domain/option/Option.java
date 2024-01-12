@@ -28,7 +28,6 @@ public class Option {
     @Column(nullable = false)
     private String content;
 
-    private String image;
     private Double weight;
 
     @ManyToOne(fetch = FetchType.LAZY)

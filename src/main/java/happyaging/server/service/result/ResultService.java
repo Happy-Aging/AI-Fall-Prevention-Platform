@@ -5,6 +5,8 @@ import happyaging.server.domain.response.Response;
 import happyaging.server.domain.result.Result;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.survey.Survey;
+import happyaging.server.dto.ai.AiServerRequestDTO;
+import happyaging.server.dto.ai.ResponseInfoDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.repository.result.ResultRepository;
@@ -29,10 +31,19 @@ public class ResultService {
 
     @Transactional
     public Result create(Senior senior, Survey survey, List<Response> responses) {
+        List<ResponseInfoDTO> responseInfoDTOS = createResponseDTOS(responses);
+        AiServerRequestDTO aiServerRequestDTO = AiServerRequestDTO.create(senior, responseInfoDTOS);
+
         //TODO: AI server에 보내줄 AiServerRequestDTO 만들고 보내기
         //TODO: AI 서버에서 응답 받은걸로 AiServerResponseDTO 만들기로 수정
         Result result = Result.create(survey);
         return resultRepository.save(result);
+    }
+
+    private List<ResponseInfoDTO> createResponseDTOS(List<Response> responses) {
+        return responses.stream()
+                .map(ResponseInfoDTO::create)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -69,7 +80,7 @@ public class ResultService {
         }
         throw new AppException(AppErrorCode.INVALID_FILE);
     }
-    
+
     public String createContentDisposition(Resource resource) {
         String filename = checkFileName(resource.getFilename());
         String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8);

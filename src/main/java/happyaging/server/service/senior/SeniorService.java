@@ -1,5 +1,6 @@
 package happyaging.server.service.senior;
 
+import happyaging.server.domain.image.ExampleImage;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.user.User;
 import happyaging.server.dto.senior.ImageResponseDTO;
@@ -7,6 +8,7 @@ import happyaging.server.dto.senior.SeniorRequestDTO;
 import happyaging.server.dto.senior.SeniorResponseDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
+import happyaging.server.repository.image.ExampleImageRepository;
 import happyaging.server.repository.senior.SeniorRepository;
 import happyaging.server.repository.user.UserRepository;
 import java.util.Collections;
@@ -22,6 +24,7 @@ public class SeniorService {
 
     private final UserRepository userRepository;
     private final SeniorRepository seniorRepository;
+    private final ExampleImageRepository exampleImageRepository;
 
     @Transactional
     public Long createSenior(Long userId, SeniorRequestDTO seniorRequestDTO) {
@@ -67,6 +70,9 @@ public class SeniorService {
 
     @Transactional(readOnly = true)
     public List<ImageResponseDTO> readExampleImage() {
-        return null;
+        List<ExampleImage> exampleImages = exampleImageRepository.findAllByOrderByIdAsc();
+        return exampleImages.stream()
+                .map(ImageResponseDTO::create)
+                .toList();
     }
 }

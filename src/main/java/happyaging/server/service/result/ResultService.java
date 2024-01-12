@@ -6,10 +6,17 @@ import happyaging.server.domain.result.Result;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.survey.Survey;
 import happyaging.server.dto.ai.AiServerRequestDTO;
+import happyaging.server.dto.ai.AiServerResponseDTO;
 import happyaging.server.dto.ai.ResponseInfoDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.repository.result.ResultRepository;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -25,6 +32,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ResultService {
     private static final String DISPOSITION_PREFIX = "attachment; filename*=UTF-8''";
+    private static final String AI_SERVER_ENDPOINT = "http://localhost:8000/makeReport";
+    private static final String AI_SERVER_REQUEST_METHOD = "POST";
+    private static final String AI_SERVER_CONTENT_TYPE_KEY = "Content-Type";
+    private static final String AI_SERVER_CONTENT_TYPE_VALUE = "application/json; utf-8";
+    private static final String AI_SERVER_ACCEPT_TYPE_KEY = "Accept";
+    private static final String AI_SERVER_ACCEPT_TYPE_VALUE = "application/json";
     private static final Gson gson = new Gson();
 
     private final ResultRepository resultRepository;
@@ -33,9 +46,8 @@ public class ResultService {
     public Result create(Senior senior, Survey survey, List<Response> responses) {
         List<ResponseInfoDTO> responseInfoDTOS = createResponseDTOS(responses);
         AiServerRequestDTO aiServerRequestDTO = AiServerRequestDTO.create(senior, responseInfoDTOS);
-
-        //TODO: AI server에 보내줄 AiServerRequestDTO 만들고 보내기
-        //TODO: AI 서버에서 응답 받은걸로 AiServerResponseDTO 만들기로 수정
+        AiServerResponseDTO aiServerResponseDTO = sendToAiServer(aiServerRequestDTO);
+        //TODO Result.create 변경
         Result result = Result.create(survey);
         return resultRepository.save(result);
     }
@@ -44,6 +56,63 @@ public class ResultService {
         return responses.stream()
                 .map(ResponseInfoDTO::create)
                 .toList();
+    }
+
+    private AiServerResponseDTO sendToAiServer(AiServerRequestDTO aiServerRequestDTO) {
+        HttpURLConnection con = null;
+        try {
+            con = setupHttpConnection();
+
+            //TODO: 출력하는거 확인 후 지우기
+            String jsonInputString = gson.toJson(aiServerRequestDTO);
+            System.out.println(jsonInputString);
+
+            sendData(con, jsonInputString);
+            return receiveResponseData(con, gson);
+        } catch (RuntimeException exception) {
+            throw new AppException(AppErrorCode.DISCONNECT_AI_SERVER);
+        } finally {
+            if (con != null) {
+                con.disconnect();
+            }
+        }
+    }
+
+    private AiServerResponseDTO receiveResponseData(HttpURLConnection con, Gson gson) {
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+            StringBuilder response = new StringBuilder();
+            String responseLine;
+            while ((responseLine = br.readLine()) != null) {
+                response.append(responseLine.trim());
+            }
+            return gson.fromJson(response.toString(), AiServerResponseDTO.class);
+        } catch (IOException e) {
+            throw new AppException(AppErrorCode.DISCONNECT_AI_SERVER);
+        }
+    }
+
+    private void sendData(HttpURLConnection con, String jsonInputString) {
+        try (OutputStream os = con.getOutputStream()) {
+            byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        } catch (IOException e) {
+            throw new AppException(AppErrorCode.DISCONNECT_AI_SERVER);
+        }
+    }
+
+    private HttpURLConnection setupHttpConnection() {
+        try {
+            URL url = new URL(AI_SERVER_ENDPOINT);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod(AI_SERVER_REQUEST_METHOD);
+            con.setRequestProperty(AI_SERVER_CONTENT_TYPE_KEY, AI_SERVER_CONTENT_TYPE_VALUE);
+            con.setRequestProperty(AI_SERVER_ACCEPT_TYPE_KEY, AI_SERVER_ACCEPT_TYPE_VALUE);
+            con.setDoOutput(true);
+            return con;
+        } catch (IOException exception) {
+            throw new AppException(AppErrorCode.DISCONNECT_AI_SERVER);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -93,12 +162,8 @@ public class ResultService {
         }
         return filename;
     }
-
-//
 //    @Transactional
 //    public ResultResponseDTO createResult(Survey survey, List<Response> responses) {
-//        SurveyResponseDTO surveyResponseDTO = createDataForReport(survey.getSenior().getName(), responses);
-//        updateSeniorInfo(survey.getSenior(), surveyResponseDTO);
 //        ReportResponseDTO reportResponseDTO = createReport(surveyResponseDTO);
 //        Result result = Result.builder()
 //                .rank(surveyResponseDTO.getRank())
@@ -112,71 +177,6 @@ public class ResultService {
 //    }
 //
 //
-//    private ReportResponseDTO createReport(SurveyResponseDTO dataForReport) {
-//        HttpURLConnection con = null;
-//        try {
-//            URL url = new URL("http://localhost:8000/makeReport");
-//            con = (HttpURLConnection) url.openConnection();
-//            con.setRequestMethod("POST");
-//            con.setRequestProperty("Content-Type", "application/json; utf-8");
-//            con.setRequestProperty("Accept", "application/json");
-//            con.setDoOutput(true);
-//
-//            String jsonInputString = gson.toJson(dataForReport);
-//            System.out.println(jsonInputString);
-//
-//            try (OutputStream os = con.getOutputStream()) {
-//                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
-//                os.write(input, 0, input.length);
-//            }
-//
-//            try (BufferedReader br = new BufferedReader(
-//                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
-//                StringBuilder response = new StringBuilder();
-//                String responseLine;
-//                while ((responseLine = br.readLine()) != null) {
-//                    response.append(responseLine.trim());
-//                }
-//                return gson.fromJson(response.toString(), ReportResponseDTO.class);
-//            }
-//        } catch (IOException e) {
-//            throw new IllegalArgumentException(e);
-//        } catch (IllegalArgumentException e) {
-//            throw new IllegalArgumentException("cannot connect AI server");
-//        } finally {
-//            if (con != null) {
-//                con.disconnect();
-//            }
-//        }
-//    }
-//
-//    private SurveyResponseDTO createDataForReport(String name, List<Response> responses) {
-//        double totalScore = 1.0;
-//        Map<String, QuestionAndAnswerDTO> surveyResponse = new LinkedHashMap<>();
-//
-//        for (Response response : responses) {
-//            totalScore *= ResponseScore.getScore(response.getQuestionNumber(), response.getResponse());
-//            createSurveyResponseDTO(response, surveyResponse);
-//        }
-//        totalScore = Math.round(totalScore * 1000.0) / 1000.0;
-//        return SurveyResponseDTO.builder()
-//                .name(name)
-//                .rank(ResponseScore.calculateRank(totalScore))
-//                .totalScore(totalScore)
-//                .data(surveyResponse)
-//                .build();
-//    }
-//
-//    private void createSurveyResponseDTO(Response response, Map<String, QuestionAndAnswerDTO> surveyResponse) {
-//        surveyResponse.put(response.getQuestionNumber(), createQuestionAndAnswerDTO(response));
-//    }
-//
-//    private QuestionAndAnswerDTO createQuestionAndAnswerDTO(Response response) {
-//        return QuestionAndAnswerDTO.builder()
-//                .question(questionService.findByNumber(response.getQuestionNumber()))
-//                .answer(response.getResponse())
-//                .build();
-//    }
 //
 //    private ResultResponseDTO createResultResponseDTO(Result result, Survey survey) {
 //        return ResultResponseDTO.builder()
@@ -185,12 +185,5 @@ public class ResultService {
 //                .rank(result.getRank())
 //                .summary(result.getSummary())
 //                .build();
-//    }
-//
-//    private void updateSeniorInfo(Senior senior, SurveyResponseDTO surveyResponseDTO) {
-//        String sex = surveyResponseDTO.getData().get("1").getAnswer();
-//        String birth = surveyResponseDTO.getData().get("2").getAnswer().substring(0, 4);
-//        String residence = surveyResponseDTO.getData().get("4").getAnswer();
-//        senior.updateSeniorInfo(sex, residence, birth);
 //    }
 }

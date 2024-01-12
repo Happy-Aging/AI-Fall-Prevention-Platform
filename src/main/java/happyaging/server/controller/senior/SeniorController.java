@@ -1,5 +1,6 @@
 package happyaging.server.controller.senior;
 
+import happyaging.server.dto.senior.ImageResponseDTO;
 import happyaging.server.dto.senior.SeniorRequestDTO;
 import happyaging.server.dto.senior.SeniorResponseDTO;
 import happyaging.server.service.senior.SeniorService;
@@ -48,5 +49,10 @@ public class SeniorController {
     public List<SeniorResponseDTO> getSeniorList() {
         Long userId = userService.readCurrentUserId();
         return seniorService.readSeniors(userId);
+    }
+
+    @GetMapping("/image")
+    public List<ImageResponseDTO> readImage() {
+        return seniorService.readExampleImage();
     }
 }

@@ -2,6 +2,7 @@ package happyaging.server.service.senior;
 
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.user.User;
+import happyaging.server.dto.senior.ImageResponseDTO;
 import happyaging.server.dto.senior.SeniorRequestDTO;
 import happyaging.server.dto.senior.SeniorResponseDTO;
 import happyaging.server.exception.AppException;
@@ -62,5 +63,10 @@ public class SeniorService {
     public Senior findSeniorById(Long seniorId) {
         return seniorRepository.findById(seniorId)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_SENIOR));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ImageResponseDTO> readExampleImage() {
+        return null;
     }
 }

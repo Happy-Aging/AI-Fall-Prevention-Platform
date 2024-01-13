@@ -57,11 +57,6 @@ public class ResultService {
         List<ResponseInfoDTO> responseInfoDTOS = createResponseDTOS(responses);
         AiServerRequestDTO aiServerRequestDTO = AiServerRequestDTO.create(senior, responseInfoDTOS);
         AiServerResponseDTO aiServerResponseDTO = sendToAiServer(aiServerRequestDTO);
-
-        //TODO: AI 서버 응답 출력문
-        log.info("report:" + aiServerResponseDTO.getReport());
-        log.info("summary:" + aiServerResponseDTO.getSummary());
-        log.info("rank:" + aiServerResponseDTO.getRank());
         updateSeniorSolution(senior, aiServerResponseDTO.getProduct());
         Result result = Result.create(survey, aiServerResponseDTO);
         return resultRepository.save(result);
@@ -155,8 +150,6 @@ public class ResultService {
 
     private Resource getResource(Result result) {
         String filePath = result.getReport();
-        //TODO: 파일 경로 확인
-        log.info(filePath);
         try {
             Path file = Paths.get(filePath).normalize();
             return checkResource(new UrlResource(file.toUri()));

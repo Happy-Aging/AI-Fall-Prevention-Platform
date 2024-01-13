@@ -1,6 +1,5 @@
 package happyaging.server.domain.image;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +14,6 @@ public enum Location {
 
     private final String name;
 
-    @JsonCreator
     public static Location toLocation(String location) {
         return Stream.of(Location.values())
                 .filter(value -> value.name.equals(location))

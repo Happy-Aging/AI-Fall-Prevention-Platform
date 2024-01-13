@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -54,5 +56,13 @@ public class SeniorController {
     @GetMapping("/image")
     public List<ImageResponseDTO> readImage() {
         return seniorService.readExampleImage();
+    }
+
+    @PutMapping("/image/{seniorId}")
+    public ResponseEntity<Object> uploadImage(@RequestParam("location") String location,
+                                              @RequestParam("imageFiles") MultipartFile[] imageFiles,
+                                              @PathVariable Long seniorId) {
+        seniorService.saveSeniorImages(seniorId, location, imageFiles);
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,6 +1,8 @@
 package happyaging.server.service.result;
 
 import com.google.gson.Gson;
+import happyaging.server.domain.product.Product;
+import happyaging.server.domain.product.Recommend;
 import happyaging.server.domain.response.Response;
 import happyaging.server.domain.result.Result;
 import happyaging.server.domain.senior.Senior;
@@ -8,9 +10,12 @@ import happyaging.server.domain.survey.Survey;
 import happyaging.server.dto.ai.AiServerRequestDTO;
 import happyaging.server.dto.ai.AiServerResponseDTO;
 import happyaging.server.dto.ai.ResponseInfoDTO;
+import happyaging.server.dto.ai.SolutionDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
+import happyaging.server.repository.recommend.RecommendRepository;
 import happyaging.server.repository.result.ResultRepository;
+import happyaging.server.service.product.ProductService;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,6 +26,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -41,14 +47,28 @@ public class ResultService {
     private static final Gson gson = new Gson();
 
     private final ResultRepository resultRepository;
+    private final RecommendRepository recommendRepository;
+    private final ProductService productService;
 
     @Transactional
     public Result create(Senior senior, Survey survey, List<Response> responses) {
         List<ResponseInfoDTO> responseInfoDTOS = createResponseDTOS(responses);
         AiServerRequestDTO aiServerRequestDTO = AiServerRequestDTO.create(senior, responseInfoDTOS);
         AiServerResponseDTO aiServerResponseDTO = sendToAiServer(aiServerRequestDTO);
+        updateSeniorSolution(senior, aiServerResponseDTO.getProduct());
         Result result = Result.create(survey, aiServerResponseDTO);
         return resultRepository.save(result);
+    }
+
+    private void updateSeniorSolution(Senior senior, List<SolutionDTO> products) {
+        recommendRepository.deleteAllBySeniorId(senior.getId());
+
+        List<Recommend> recommendProduct = new ArrayList<>();
+        for (SolutionDTO solutionDTO : products) {
+            Product product = productService.findProductById(solutionDTO.getId());
+            recommendProduct.add(Recommend.create(senior, product, solutionDTO.getLocation()));
+        }
+        recommendRepository.saveAll(recommendProduct);
     }
 
     private List<ResponseInfoDTO> createResponseDTOS(List<Response> responses) {

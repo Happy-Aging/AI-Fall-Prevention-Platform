@@ -1,6 +1,7 @@
 package happyaging.server.domain.result;
 
 import happyaging.server.domain.survey.Survey;
+import happyaging.server.dto.ai.AiServerResponseDTO;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,11 +39,11 @@ public class Result {
     @JoinColumn(name = "survey_id")
     private Survey survey;
 
-    public static Result create(Survey survey) {
+    public static Result create(Survey survey, AiServerResponseDTO aiServerResponseDTO) {
         return Result.builder()
-                .rank(1)
-                .summary("500자 정도 하면 될까요? test")
-                .report("/home/ubuntu/report/test.pdf")
+                .rank(aiServerResponseDTO.getRank())
+                .summary(aiServerResponseDTO.getSummary())
+                .report(aiServerResponseDTO.getReport())
                 .survey(survey)
                 .build();
     }

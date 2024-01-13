@@ -47,8 +47,7 @@ public class ResultService {
         List<ResponseInfoDTO> responseInfoDTOS = createResponseDTOS(responses);
         AiServerRequestDTO aiServerRequestDTO = AiServerRequestDTO.create(senior, responseInfoDTOS);
         AiServerResponseDTO aiServerResponseDTO = sendToAiServer(aiServerRequestDTO);
-        //TODO Result.create 변경
-        Result result = Result.create(survey);
+        Result result = Result.create(survey, aiServerResponseDTO);
         return resultRepository.save(result);
     }
 

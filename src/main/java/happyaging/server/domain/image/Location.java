@@ -1,11 +1,15 @@
 package happyaging.server.domain.image;
 
+import happyaging.server.exception.AppException;
+import happyaging.server.exception.errorcode.AppErrorCode;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor
 @Getter
+@Slf4j
 public enum Location {
     BATHROOM("화장실/욕실"),
     KITCHEN("주방"),
@@ -18,6 +22,6 @@ public enum Location {
         return Stream.of(Location.values())
                 .filter(value -> value.name.equals(location))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_LOCATION));
     }
 }

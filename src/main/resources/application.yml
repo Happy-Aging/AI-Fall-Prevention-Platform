@@ -2,8 +2,12 @@ spring:
   jpa:
     hibernate:
       database-platform: org.hibernate.dialect.MariaDB106Dialect
-      ddl-auto: create
+      ddl-auto: none
       show_sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   config:
     additional-location: classpath:application-secret.yml
 logging:

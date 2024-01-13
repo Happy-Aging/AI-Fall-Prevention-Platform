@@ -24,12 +24,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class SeniorService {
 
@@ -110,6 +112,7 @@ public class SeniorService {
             Files.copy(file.getInputStream(), path);
             return path.toString();
         } catch (IOException e) {
+            log.info(e.getMessage());
             throw new AppException(AppErrorCode.CANNOT_SAVE_IMAGES);
         }
     }
@@ -121,7 +124,7 @@ public class SeniorService {
     }
 
     private void saveFileData(Senior senior, String filePath, String location) {
-        SeniorImage seniorImage = SeniorImage.create(filePath, Location.toLocation(location), senior);
+        SeniorImage seniorImage = SeniorImage.create(filePath, Location.toLocation(location.trim()), senior);
         seniorImageRepository.save(seniorImage);
     }
 }

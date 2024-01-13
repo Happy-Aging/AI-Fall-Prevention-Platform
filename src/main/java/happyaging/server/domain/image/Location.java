@@ -1,5 +1,7 @@
 package happyaging.server.domain.image;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -12,4 +14,12 @@ public enum Location {
     ENTRANCE("현관/출입구");
 
     private final String name;
+
+    @JsonCreator
+    public static Location toLocation(String location) {
+        return Stream.of(Location.values())
+                .filter(value -> value.name.equals(location))
+                .findFirst()
+                .orElse(null);
+    }
 }

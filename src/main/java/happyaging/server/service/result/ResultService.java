@@ -29,12 +29,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ResultService {
     private static final String DISPOSITION_PREFIX = "attachment; filename*=UTF-8''";
@@ -55,6 +57,11 @@ public class ResultService {
         List<ResponseInfoDTO> responseInfoDTOS = createResponseDTOS(responses);
         AiServerRequestDTO aiServerRequestDTO = AiServerRequestDTO.create(senior, responseInfoDTOS);
         AiServerResponseDTO aiServerResponseDTO = sendToAiServer(aiServerRequestDTO);
+
+        //TODO: AI 서버 응답 출력문
+        log.info("report:" + aiServerResponseDTO.getReport());
+        log.info("summary:" + aiServerResponseDTO.getSummary());
+        log.info("rank:" + aiServerResponseDTO.getRank());
         updateSeniorSolution(senior, aiServerResponseDTO.getProduct());
         Result result = Result.create(survey, aiServerResponseDTO);
         return resultRepository.save(result);
@@ -81,12 +88,7 @@ public class ResultService {
         HttpURLConnection con = null;
         try {
             con = setupHttpConnection();
-
-            //TODO: 출력하는거 확인 후 지우기
-            String jsonInputString = gson.toJson(aiServerRequestDTO);
-            System.out.println(jsonInputString);
-
-            sendData(con, jsonInputString);
+            sendData(con, gson.toJson(aiServerRequestDTO));
             return receiveResponseData(con, gson);
         } catch (RuntimeException exception) {
             throw new AppException(AppErrorCode.DISCONNECT_AI_SERVER);
@@ -153,7 +155,8 @@ public class ResultService {
 
     private Resource getResource(Result result) {
         String filePath = result.getReport();
-        System.out.println(filePath);
+        //TODO: 파일 경로 확인
+        log.info(filePath);
         try {
             Path file = Paths.get(filePath).normalize();
             return checkResource(new UrlResource(file.toUri()));

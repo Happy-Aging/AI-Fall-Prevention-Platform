@@ -6,8 +6,6 @@ spring:
       show_sql: true
   config:
     additional-location: classpath:application-secret.yml
-  lifecycle:
-    timeout-per-shutdown-phase: 20s
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -18,4 +16,3 @@ server:
       charset: UTF-8
       enabled: true
       force: true
-  shutdown: graceful

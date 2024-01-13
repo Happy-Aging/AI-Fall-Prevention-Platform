@@ -27,7 +27,7 @@ public class ResponseInfoDTO {
     public static ResponseInfoDTO createBySex(Sex sex) {
         return ResponseInfoDTO.builder()
                 .question("성별은 무엇인가요?")
-                .answer(sex.getSex())
+                .answer(sex.getDescription())
                 .weight(sex.getWeight())
                 .build();
     }

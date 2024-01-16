@@ -127,4 +127,9 @@ public class SeniorService {
         SeniorImage seniorImage = SeniorImage.create(filePath, Location.toLocation(location.trim()), senior);
         seniorImageRepository.save(seniorImage);
     }
+
+    @Transactional
+    public void updateRank(Senior senior, Integer rank) {
+        senior.updateRank(rank);
+    }
 }

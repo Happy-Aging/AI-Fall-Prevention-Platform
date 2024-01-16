@@ -1,5 +1,6 @@
 package happyaging.server.domain.user;
 
+import happyaging.server.dto.admin.ManagerCreateRequestDTO;
 import happyaging.server.dto.auth.JoinRequestDTO;
 import happyaging.server.dto.auth.SocialJoinRequestDTO;
 import happyaging.server.dto.user.UserInfoUpdateDTO;
@@ -78,11 +79,31 @@ public class User {
                 .build();
     }
 
+    public static User createManager(String email, String password, String name, String phoneNumber) {
+        return User.builder()
+                .name(name)
+                .email(email)
+                .password(password)
+                .phoneNumber(phoneNumber)
+                .userType(UserType.MANAGER)
+                .vendor(Vendor.HAPPY_AGING)
+                .build();
+    }
+
     public void update(UserInfoUpdateDTO userInfoUpdateDTO, BCryptPasswordEncoder encoder) {
         this.name = userInfoUpdateDTO.getName();
         this.phoneNumber = userInfoUpdateDTO.getPhoneNumber();
 
         String password = userInfoUpdateDTO.getPassword();
         this.password = password == null ? null : encoder.encode(password);
+    }
+
+    public void updateManager(ManagerCreateRequestDTO managerCreateRequestDTO, BCryptPasswordEncoder encoder) {
+        this.email = managerCreateRequestDTO.getEmail();
+
+        String password = managerCreateRequestDTO.getPassword();
+        this.password = password == null ? null : encoder.encode(password);
+        this.name = managerCreateRequestDTO.getName();
+        this.phoneNumber = managerCreateRequestDTO.getPhoneNumber();
     }
 }

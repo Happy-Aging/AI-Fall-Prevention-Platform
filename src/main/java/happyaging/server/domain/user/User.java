@@ -95,8 +95,11 @@ public class User {
         this.phoneNumber = userInfoUpdateDTO.getPhoneNumber();
 
         String password = userInfoUpdateDTO.getPassword();
-        this.password = password == null ? null : encoder.encode(password);
+        if (password != null) {
+            this.password = encoder.encode(password);
+        }
     }
+
 
     public void updateManager(ManagerCreateRequestDTO managerCreateRequestDTO, BCryptPasswordEncoder encoder) {
         this.email = managerCreateRequestDTO.getEmail();

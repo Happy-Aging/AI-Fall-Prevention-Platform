@@ -1,13 +1,13 @@
 spring:
-  datasource:
-    driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://happyaging.c5k0a6owcdit.ap-northeast-2.rds.amazonaws.com:3306/happyAging?useUnicode=true&characterEncoding=utf8mb4
-  #    url: jdbc:mariadb://localhost:3306/happyaging
   jpa:
     hibernate:
       database-platform: org.hibernate.dialect.MariaDB106Dialect
-      ddl-auto: create
+      ddl-auto: none
       show_sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   config:
     additional-location: classpath:application-secret.yml
 logging:

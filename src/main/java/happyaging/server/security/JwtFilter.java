@@ -35,7 +35,7 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
 
             String requestURI = request.getRequestURI();
-            if (requestURI.startsWith("/auth/")) {
+            if (requestURI.startsWith("/auth/") || requestURI.startsWith("/image/")) {
                 filterChain.doFilter(request, response);
                 return;
             }

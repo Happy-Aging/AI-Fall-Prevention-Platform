@@ -1,5 +1,6 @@
 package happyaging.server.domain.user;
 
+import happyaging.server.dto.admin.ManagerCreateRequestDTO;
 import happyaging.server.dto.auth.JoinRequestDTO;
 import happyaging.server.dto.auth.SocialJoinRequestDTO;
 import happyaging.server.dto.user.UserInfoUpdateDTO;
@@ -10,6 +11,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +25,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Entity
 @Builder
 @Getter
+@Table(uniqueConstraints = {@UniqueConstraint(name = "EMAIL_UNIQUE", columnNames = {"email"})})
 public class User {
 
     @Id
@@ -57,7 +61,7 @@ public class User {
                 .email(userJoinRequestDTO.getEmail())
                 .password(encoder.encode(userJoinRequestDTO.getPassword()))
                 .phoneNumber(userJoinRequestDTO.getPhoneNumber())
-                .userType(userJoinRequestDTO.getUserType())
+                .userType(UserType.USER)
                 .vendor(userJoinRequestDTO.getVendor())
                 .createdAt(LocalDate.now())
                 .build();
@@ -69,18 +73,42 @@ public class User {
                 .email(socialJoinRequestDTO.getEmail())
                 .password(null)
                 .phoneNumber(socialJoinRequestDTO.getPhoneNumber())
-                .userType(socialJoinRequestDTO.getUserType())
+                .userType(UserType.USER)
                 .vendor(socialJoinRequestDTO.getVendor())
                 .createdAt(LocalDate.now())
+                .build();
+    }
+
+    public static User createManager(String email, String password, String name, String phoneNumber) {
+        return User.builder()
+                .name(name)
+                .email(email)
+                .password(password)
+                .phoneNumber(phoneNumber)
+                .userType(UserType.MANAGER)
+                .vendor(Vendor.HAPPY_AGING)
                 .build();
     }
 
     public void update(UserInfoUpdateDTO userInfoUpdateDTO, BCryptPasswordEncoder encoder) {
         this.name = userInfoUpdateDTO.getName();
         this.phoneNumber = userInfoUpdateDTO.getPhoneNumber();
-        this.userType = userInfoUpdateDTO.getUserType();
 
         String password = userInfoUpdateDTO.getPassword();
-        this.password = password == null ? null : encoder.encode(password);
+        if (password != null) {
+            this.password = encoder.encode(password);
+        }
+    }
+
+
+    public void updateManager(ManagerCreateRequestDTO managerCreateRequestDTO, BCryptPasswordEncoder encoder) {
+        this.email = managerCreateRequestDTO.getEmail();
+        this.name = managerCreateRequestDTO.getName();
+        this.phoneNumber = managerCreateRequestDTO.getPhoneNumber();
+
+        String password = managerCreateRequestDTO.getPassword();
+        if (password != null) {
+            this.password = encoder.encode(password);
+        }
     }
 }

@@ -68,6 +68,7 @@ public class AuthService {
         return JwtUtil.createTokens(user);
     }
 
+    @Transactional(readOnly = true)
     public LoginSuccessDTO checkRefreshToken(String refreshToken) {
         Long userId = JwtUtil.getUserIdFromToken(refreshToken);
         User user = userRepository.findById(userId)
@@ -132,5 +133,4 @@ public class AuthService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_USER));
     }
-
 }

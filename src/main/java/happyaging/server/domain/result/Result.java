@@ -1,6 +1,7 @@
 package happyaging.server.domain.result;
 
 import happyaging.server.domain.survey.Survey;
+import happyaging.server.dto.ai.AiServerResponseDTO;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,20 +10,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@DynamicUpdate
 @Builder
 @Entity
 @Getter
-@Table(name = "result")
 public class Result {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,9 +28,6 @@ public class Result {
 
     @Column(nullable = false)
     private Integer rank;
-
-    @Column(nullable = false)
-    private Double totalScore;
 
     @Column(length = 500, nullable = false)
     private String summary;
@@ -45,4 +39,12 @@ public class Result {
     @JoinColumn(name = "survey_id")
     private Survey survey;
 
+    public static Result create(Survey survey, AiServerResponseDTO aiServerResponseDTO) {
+        return Result.builder()
+                .rank(aiServerResponseDTO.getRank())
+                .summary(aiServerResponseDTO.getSummary())
+                .report(aiServerResponseDTO.getReport())
+                .survey(survey)
+                .build();
+    }
 }

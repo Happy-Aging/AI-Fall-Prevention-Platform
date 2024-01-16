@@ -1,6 +1,7 @@
 package happyaging.server.dto.senior;
 
 import happyaging.server.domain.senior.Relation;
+import happyaging.server.domain.senior.Sex;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -23,4 +24,7 @@ public class SeniorRequestDTO {
 
     @NotNull(message = "관계는 필수입니다.")
     private Relation relation;
+
+    @NotNull(message = "성별은 필수입니다.")
+    private Sex sex;
 }

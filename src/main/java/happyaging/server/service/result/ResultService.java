@@ -1,28 +1,184 @@
 package happyaging.server.service.result;
 
 import com.google.gson.Gson;
+import happyaging.server.domain.product.Product;
+import happyaging.server.domain.product.Recommend;
+import happyaging.server.domain.response.Response;
+import happyaging.server.domain.result.Result;
+import happyaging.server.domain.senior.Senior;
+import happyaging.server.domain.survey.Survey;
+import happyaging.server.dto.ai.AiServerRequestDTO;
+import happyaging.server.dto.ai.AiServerResponseDTO;
+import happyaging.server.dto.ai.ResponseInfoDTO;
+import happyaging.server.dto.ai.SolutionDTO;
+import happyaging.server.exception.AppException;
+import happyaging.server.exception.errorcode.AppErrorCode;
+import happyaging.server.repository.recommend.RecommendRepository;
 import happyaging.server.repository.result.ResultRepository;
-import happyaging.server.service.question.QuestionService;
+import happyaging.server.service.product.ProductService;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ResultService {
+    private static final String DISPOSITION_PREFIX = "attachment; filename*=UTF-8''";
+    private static final String AI_SERVER_ENDPOINT = "http://localhost:8000/makeReport";
+    private static final String AI_SERVER_REQUEST_METHOD = "POST";
+    private static final String AI_SERVER_CONTENT_TYPE_KEY = "Content-Type";
+    private static final String AI_SERVER_CONTENT_TYPE_VALUE = "application/json; utf-8";
+    private static final String AI_SERVER_ACCEPT_TYPE_KEY = "Accept";
+    private static final String AI_SERVER_ACCEPT_TYPE_VALUE = "application/json";
     private static final Gson gson = new Gson();
+
     private final ResultRepository resultRepository;
-    private final QuestionService questionService;
-//
-//    @Transactional(readOnly = true)
-//    public Result findResult(Long resultId) {
-//        return resultRepository.findById(resultId)
-//                .orElseThrow(() -> new IllegalArgumentException("cannot find result"));
-//    }
-//
+    private final RecommendRepository recommendRepository;
+    private final ProductService productService;
+
+    @Transactional
+    public Result create(Senior senior, Survey survey, List<Response> responses) {
+        List<ResponseInfoDTO> responseInfoDTOS = createResponseDTOS(responses);
+        AiServerRequestDTO aiServerRequestDTO = AiServerRequestDTO.create(senior, responseInfoDTOS);
+        AiServerResponseDTO aiServerResponseDTO = sendToAiServer(aiServerRequestDTO);
+        updateSeniorSolution(senior, aiServerResponseDTO.getProduct());
+        Result result = Result.create(survey, aiServerResponseDTO);
+        return resultRepository.save(result);
+    }
+
+    private void updateSeniorSolution(Senior senior, List<SolutionDTO> products) {
+        recommendRepository.deleteAllBySeniorId(senior.getId());
+
+        List<Recommend> recommendProduct = new ArrayList<>();
+        for (SolutionDTO solutionDTO : products) {
+            Product product = productService.findProductById(solutionDTO.getId());
+            recommendProduct.add(Recommend.create(senior, product, solutionDTO.getLocation()));
+        }
+        recommendRepository.saveAll(recommendProduct);
+    }
+
+    private List<ResponseInfoDTO> createResponseDTOS(List<Response> responses) {
+        return responses.stream()
+                .map(ResponseInfoDTO::create)
+                .toList();
+    }
+
+    private AiServerResponseDTO sendToAiServer(AiServerRequestDTO aiServerRequestDTO) {
+        HttpURLConnection con = null;
+        try {
+            con = setupHttpConnection();
+            sendData(con, gson.toJson(aiServerRequestDTO));
+            return receiveResponseData(con, gson);
+        } catch (RuntimeException exception) {
+            throw new AppException(AppErrorCode.DISCONNECT_AI_SERVER);
+        } finally {
+            if (con != null) {
+                con.disconnect();
+            }
+        }
+    }
+
+    private AiServerResponseDTO receiveResponseData(HttpURLConnection con, Gson gson) {
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+            StringBuilder response = new StringBuilder();
+            String responseLine;
+            while ((responseLine = br.readLine()) != null) {
+                response.append(responseLine.trim());
+            }
+            return gson.fromJson(response.toString(), AiServerResponseDTO.class);
+        } catch (IOException e) {
+            throw new AppException(AppErrorCode.DISCONNECT_AI_SERVER);
+        }
+    }
+
+    private void sendData(HttpURLConnection con, String jsonInputString) {
+        try (OutputStream os = con.getOutputStream()) {
+            byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        } catch (IOException e) {
+            throw new AppException(AppErrorCode.DISCONNECT_AI_SERVER);
+        }
+    }
+
+    private HttpURLConnection setupHttpConnection() {
+        try {
+            URL url = new URL(AI_SERVER_ENDPOINT);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod(AI_SERVER_REQUEST_METHOD);
+            con.setRequestProperty(AI_SERVER_CONTENT_TYPE_KEY, AI_SERVER_CONTENT_TYPE_VALUE);
+            con.setRequestProperty(AI_SERVER_ACCEPT_TYPE_KEY, AI_SERVER_ACCEPT_TYPE_VALUE);
+            con.setDoOutput(true);
+            return con;
+        } catch (IOException exception) {
+            throw new AppException(AppErrorCode.DISCONNECT_AI_SERVER);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public Result findBySurvey(Survey survey) {
+        return resultRepository.findBySurveyId(survey.getId())
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_RESULT));
+    }
+
+    @Transactional(readOnly = true)
+    public Resource findReport(Long resultId) {
+        Result result = findResult(resultId);
+        return getResource(result);
+    }
+
+    private Result findResult(Long resultId) {
+        return resultRepository.findById(resultId)
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_RESULT));
+    }
+
+    private Resource getResource(Result result) {
+        String filePath = result.getReport();
+        try {
+            Path file = Paths.get(filePath).normalize();
+            return checkResource(new UrlResource(file.toUri()));
+        } catch (Exception e) {
+            throw new AppException(AppErrorCode.INVALID_FILE);
+        }
+    }
+
+    private Resource checkResource(Resource resource) {
+        if (resource.exists()) {
+            return resource;
+        }
+        throw new AppException(AppErrorCode.INVALID_FILE);
+    }
+
+    public String createContentDisposition(Resource resource) {
+        String filename = checkFileName(resource.getFilename());
+        String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8);
+        return DISPOSITION_PREFIX + encodedFilename;
+    }
+
+    private static String checkFileName(String filename) {
+        if (filename == null) {
+            throw new AppException(AppErrorCode.INVALID_FILE);
+        }
+        return filename;
+    }
 //    @Transactional
 //    public ResultResponseDTO createResult(Survey survey, List<Response> responses) {
-//        SurveyResponseDTO surveyResponseDTO = createDataForReport(survey.getSenior().getName(), responses);
-//        updateSeniorInfo(survey.getSenior(), surveyResponseDTO);
 //        ReportResponseDTO reportResponseDTO = createReport(surveyResponseDTO);
 //        Result result = Result.builder()
 //                .rank(surveyResponseDTO.getRank())
@@ -35,101 +191,7 @@ public class ResultService {
 //        return createResultResponseDTO(result, survey);
 //    }
 //
-//    @Transactional(readOnly = true)
-//    public ResponseEntity<Resource> getReport(Result result) {
-//        String filePath = result.getReport();
-////        String filePath = "/home/ubuntu/AI_server/CODE/reports/과제08.pdf";
-//        System.out.println(filePath);
-//        try {
-//            Path file = Paths.get(filePath).normalize();
-//            Resource resource = new UrlResource(file.toUri());
-//            if (resource.exists()) {
-//                String filename = resource.getFilename();
-//                if (filename == null) {
-//                    throw new IllegalArgumentException("Filename can not be null");
-//                }
-//                String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8);
-//                String contentDisposition = "attachment; filename*=UTF-8''" + encodedFilename;
 //
-//                return ResponseEntity.ok()
-//                        .contentType(MediaType.APPLICATION_PDF)
-//                        .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-//                        .body(resource);
-//            } else {
-//                throw new IllegalArgumentException("cannot find report");
-//            }
-//        } catch (Exception e) {
-//            System.out.println("파일에러");
-//            return ResponseEntity.badRequest()
-//                    .build();
-//        }
-//    }
-//
-//    private ReportResponseDTO createReport(SurveyResponseDTO dataForReport) {
-//        HttpURLConnection con = null;
-//        try {
-//            URL url = new URL("http://localhost:8000/makeReport");
-//            con = (HttpURLConnection) url.openConnection();
-//            con.setRequestMethod("POST");
-//            con.setRequestProperty("Content-Type", "application/json; utf-8");
-//            con.setRequestProperty("Accept", "application/json");
-//            con.setDoOutput(true);
-//
-//            String jsonInputString = gson.toJson(dataForReport);
-//            System.out.println(jsonInputString);
-//
-//            try (OutputStream os = con.getOutputStream()) {
-//                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
-//                os.write(input, 0, input.length);
-//            }
-//
-//            try (BufferedReader br = new BufferedReader(
-//                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
-//                StringBuilder response = new StringBuilder();
-//                String responseLine;
-//                while ((responseLine = br.readLine()) != null) {
-//                    response.append(responseLine.trim());
-//                }
-//                return gson.fromJson(response.toString(), ReportResponseDTO.class);
-//            }
-//        } catch (IOException e) {
-//            throw new IllegalArgumentException(e);
-//        } catch (IllegalArgumentException e) {
-//            throw new IllegalArgumentException("cannot connect AI server");
-//        } finally {
-//            if (con != null) {
-//                con.disconnect();
-//            }
-//        }
-//    }
-//
-//    private SurveyResponseDTO createDataForReport(String name, List<Response> responses) {
-//        double totalScore = 1.0;
-//        Map<String, QuestionAndAnswerDTO> surveyResponse = new LinkedHashMap<>();
-//
-//        for (Response response : responses) {
-//            totalScore *= ResponseScore.getScore(response.getQuestionNumber(), response.getResponse());
-//            createSurveyResponseDTO(response, surveyResponse);
-//        }
-//        totalScore = Math.round(totalScore * 1000.0) / 1000.0;
-//        return SurveyResponseDTO.builder()
-//                .name(name)
-//                .rank(ResponseScore.calculateRank(totalScore))
-//                .totalScore(totalScore)
-//                .data(surveyResponse)
-//                .build();
-//    }
-//
-//    private void createSurveyResponseDTO(Response response, Map<String, QuestionAndAnswerDTO> surveyResponse) {
-//        surveyResponse.put(response.getQuestionNumber(), createQuestionAndAnswerDTO(response));
-//    }
-//
-//    private QuestionAndAnswerDTO createQuestionAndAnswerDTO(Response response) {
-//        return QuestionAndAnswerDTO.builder()
-//                .question(questionService.findByNumber(response.getQuestionNumber()))
-//                .answer(response.getResponse())
-//                .build();
-//    }
 //
 //    private ResultResponseDTO createResultResponseDTO(Result result, Survey survey) {
 //        return ResultResponseDTO.builder()
@@ -138,12 +200,5 @@ public class ResultService {
 //                .rank(result.getRank())
 //                .summary(result.getSummary())
 //                .build();
-//    }
-//
-//    private void updateSeniorInfo(Senior senior, SurveyResponseDTO surveyResponseDTO) {
-//        String sex = surveyResponseDTO.getData().get("1").getAnswer();
-//        String birth = surveyResponseDTO.getData().get("2").getAnswer().substring(0, 4);
-//        String residence = surveyResponseDTO.getData().get("4").getAnswer();
-//        senior.updateSeniorInfo(sex, residence, birth);
 //    }
 }

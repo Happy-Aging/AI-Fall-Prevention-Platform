@@ -1,5 +1,7 @@
 package happyaging.server.dto.result;
 
+import happyaging.server.domain.result.Result;
+import happyaging.server.domain.survey.Survey;
 import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,4 +13,13 @@ public class ResultResponseDTO {
     private LocalDate date;
     private Integer rank;
     private String summary;
+
+    public static ResultResponseDTO create(Survey survey, Result result) {
+        return ResultResponseDTO.builder()
+                .resultId(result.getId())
+                .date(survey.getDate())
+                .rank(result.getRank())
+                .summary(result.getSummary())
+                .build();
+    }
 }

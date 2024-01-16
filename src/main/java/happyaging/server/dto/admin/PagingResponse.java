@@ -1,4 +1,4 @@
-package happyaging.server.domain.admin;
+package happyaging.server.dto.admin;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

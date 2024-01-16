@@ -103,10 +103,12 @@ public class User {
 
     public void updateManager(ManagerCreateRequestDTO managerCreateRequestDTO, BCryptPasswordEncoder encoder) {
         this.email = managerCreateRequestDTO.getEmail();
-
-        String password = managerCreateRequestDTO.getPassword();
-        this.password = password == null ? null : encoder.encode(password);
         this.name = managerCreateRequestDTO.getName();
         this.phoneNumber = managerCreateRequestDTO.getPhoneNumber();
+
+        String password = managerCreateRequestDTO.getPassword();
+        if (password != null) {
+            this.password = encoder.encode(password);
+        }
     }
 }

@@ -1,10 +1,12 @@
 package happyaging.server.controller.survey;
 
 import happyaging.server.domain.question.Question;
+import happyaging.server.domain.senior.Senior;
 import happyaging.server.dto.response.ResponseRequestDTO;
 import happyaging.server.dto.result.ResultResponseDTO;
 import happyaging.server.dto.survey.SurveyResponseDTO;
 import happyaging.server.service.question.QuestionService;
+import happyaging.server.service.senior.SeniorService;
 import happyaging.server.service.survey.SurveyService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SurveyController {
 
     private final QuestionService questionService;
+    private final SeniorService seniorService;
     private final SurveyService surveyService;
 
     @GetMapping
@@ -33,7 +36,10 @@ public class SurveyController {
     @PostMapping("/{seniorId}")
     public ResultResponseDTO submitSurvey(@PathVariable Long seniorId,
                                           @RequestBody @Valid List<ResponseRequestDTO> responseRequestDTOS) {
-        return surveyService.submit(seniorId, responseRequestDTOS);
+        Senior senior = seniorService.findSeniorById(seniorId);
+        ResultResponseDTO resultResponseDTO = surveyService.submit(senior, responseRequestDTOS);
+        seniorService.updateRank(senior, resultResponseDTO.getRank());
+        return resultResponseDTO;
     }
 
     @GetMapping("/{seniorId}")

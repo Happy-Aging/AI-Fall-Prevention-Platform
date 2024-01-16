@@ -38,12 +38,10 @@ public class SurveyService {
     }
 
     @Transactional
-    public ResultResponseDTO submit(Long seniorId, List<ResponseRequestDTO> responseRequestDTOS) {
-        Senior senior = findSenior(seniorId);
+    public ResultResponseDTO submit(Senior senior, List<ResponseRequestDTO> responseRequestDTOS) {
         Survey survey = createSurvey(senior);
         List<Response> responses = responseService.saveResponse(responseRequestDTOS, survey);
         Result result = resultService.create(senior, survey, responses);
-        senior.updateRank(result.getRank());
         return ResultResponseDTO.create(survey, result);
     }
 

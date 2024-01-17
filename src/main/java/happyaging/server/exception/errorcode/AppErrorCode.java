@@ -15,7 +15,8 @@ public enum AppErrorCode implements ErrorCode {
     DISCONNECT_AI_SERVER(HttpStatus.INTERNAL_SERVER_ERROR, "AI 서버 에러입니다."),
     INVALID_PRODUCT(HttpStatus.NOT_FOUND, "존재하지않는 물품입니다."),
     CANNOT_SAVE_IMAGES(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 저장할 수 없습니다."),
-    INVALID_LOCATION(HttpStatus.NOT_FOUND, "올바르지 않은 위치입니다.");
+    INVALID_LOCATION(HttpStatus.NOT_FOUND, "올바르지 않은 위치입니다."),
+    INVALID_SURVEY(HttpStatus.NOT_FOUND, "존재하지 않는 설문조사입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

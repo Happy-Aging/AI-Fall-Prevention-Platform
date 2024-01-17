@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ManagerCreateRequestDTO {
+public class CreateManagerDTO {
     @NotNull(message = "email은 필수입니다.")
     private String email;
     private String password;

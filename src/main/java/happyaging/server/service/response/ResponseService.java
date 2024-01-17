@@ -42,6 +42,11 @@ public class ResponseService {
         return Response.create(survey, question, option, subjectiveContext);
     }
 
+    @Transactional(readOnly = true)
+    public List<Response> findResponsesBySurvey(Survey survey) {
+        return responseRepository.findAllBySurveyId(survey.getId());
+    }
+
     private String findContext(String subjectiveResponse, List<Long> multiId) {
         if (multiId != null) {
             List<String> optionContext = new ArrayList<>();

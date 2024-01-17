@@ -11,7 +11,6 @@ import happyaging.server.dto.survey.OptionDTO;
 import happyaging.server.dto.survey.SurveyResponseDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
-import happyaging.server.repository.senior.SeniorRepository;
 import happyaging.server.repository.survey.SurveyRepository;
 import happyaging.server.service.response.ResponseService;
 import happyaging.server.service.result.ResultService;
@@ -25,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SurveyService {
 
-    private final SeniorRepository seniorRepository;
     private final SurveyRepository surveyRepository;
     private final ResponseService responseService;
     private final ResultService resultService;
@@ -49,6 +47,12 @@ public class SurveyService {
     public List<ResultResponseDTO> findSurveys(Long seniorId) {
         List<Survey> surveys = surveyRepository.findAllBySeniorIdOrderByDateDescIdDesc(seniorId);
         return creatResultResponseDTOS(surveys);
+    }
+
+    @Transactional(readOnly = true)
+    public Survey findSurveyById(Long surveyId) {
+        return surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_SURVEY));
     }
 
     private List<ResultResponseDTO> creatResultResponseDTOS(List<Survey> surveys) {
@@ -76,8 +80,4 @@ public class SurveyService {
         return surveyRepository.save(survey);
     }
 
-    private Senior findSenior(Long seniorId) {
-        return seniorRepository.findById(seniorId)
-                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_SENIOR));
-    }
 }

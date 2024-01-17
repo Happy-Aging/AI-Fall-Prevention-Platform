@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ReadSurveyResponseDTO {
+public class ReadSurveyDTO {
     private Long resultId;
     private Long surveyId;
     private String seniorName;
@@ -17,8 +17,8 @@ public class ReadSurveyResponseDTO {
     private LocalDate createDate;
     private Integer rank;
 
-    public static ReadSurveyResponseDTO create(Survey survey, Result result, Senior senior) {
-        return ReadSurveyResponseDTO.builder()
+    public static ReadSurveyDTO create(Survey survey, Result result, Senior senior) {
+        return ReadSurveyDTO.builder()
                 .resultId(result.getId())
                 .surveyId(survey.getId())
                 .seniorName(senior.getName())

@@ -6,14 +6,14 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class ManagerReadResponseDTO {
+public class ReadManagerDTO {
     private Long id;
     private String email;
     private String phoneNumber;
     private String name;
 
-    public static ManagerReadResponseDTO create(User user) {
-        return ManagerReadResponseDTO.builder()
+    public static ReadManagerDTO create(User user) {
+        return ReadManagerDTO.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())

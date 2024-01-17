@@ -1,6 +1,6 @@
 package happyaging.server.domain.user;
 
-import happyaging.server.dto.admin.ManagerCreateRequestDTO;
+import happyaging.server.dto.admin.CreateManagerDTO;
 import happyaging.server.dto.auth.JoinRequestDTO;
 import happyaging.server.dto.auth.SocialJoinRequestDTO;
 import happyaging.server.dto.user.UserInfoUpdateDTO;
@@ -102,12 +102,12 @@ public class User {
     }
 
 
-    public void updateManager(ManagerCreateRequestDTO managerCreateRequestDTO, BCryptPasswordEncoder encoder) {
-        this.email = managerCreateRequestDTO.getEmail();
-        this.name = managerCreateRequestDTO.getName();
-        this.phoneNumber = managerCreateRequestDTO.getPhoneNumber();
+    public void updateManager(CreateManagerDTO createManagerDTO, BCryptPasswordEncoder encoder) {
+        this.email = createManagerDTO.getEmail();
+        this.name = createManagerDTO.getName();
+        this.phoneNumber = createManagerDTO.getPhoneNumber();
 
-        String password = managerCreateRequestDTO.getPassword();
+        String password = createManagerDTO.getPassword();
         if (password != null) {
             this.password = encoder.encode(password);
         }

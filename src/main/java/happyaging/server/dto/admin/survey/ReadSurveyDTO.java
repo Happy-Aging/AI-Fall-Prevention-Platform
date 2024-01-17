@@ -1,4 +1,4 @@
-package happyaging.server.dto.admin;
+package happyaging.server.dto.admin.survey;
 
 import happyaging.server.domain.result.Result;
 import happyaging.server.domain.senior.Senior;

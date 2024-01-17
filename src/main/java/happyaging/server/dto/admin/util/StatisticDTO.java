@@ -1,4 +1,4 @@
-package happyaging.server.dto.admin;
+package happyaging.server.dto.admin.util;
 
 import lombok.Builder;
 import lombok.Getter;

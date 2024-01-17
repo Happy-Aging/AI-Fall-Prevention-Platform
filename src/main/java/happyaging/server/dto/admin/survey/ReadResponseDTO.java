@@ -1,4 +1,4 @@
-package happyaging.server.dto.admin;
+package happyaging.server.dto.admin.survey;
 
 import happyaging.server.domain.response.Response;
 import lombok.Builder;

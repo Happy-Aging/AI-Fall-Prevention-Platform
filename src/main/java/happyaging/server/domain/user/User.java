@@ -1,6 +1,6 @@
 package happyaging.server.domain.user;
 
-import happyaging.server.dto.admin.CreateManagerDTO;
+import happyaging.server.dto.admin.user.CreateManagerDTO;
 import happyaging.server.dto.auth.JoinRequestDTO;
 import happyaging.server.dto.auth.SocialJoinRequestDTO;
 import happyaging.server.dto.user.UserInfoUpdateDTO;

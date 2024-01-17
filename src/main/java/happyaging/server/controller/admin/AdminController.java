@@ -1,10 +1,14 @@
 package happyaging.server.controller.admin;
 
+import happyaging.server.domain.result.Result;
+import happyaging.server.domain.senior.Senior;
+import happyaging.server.domain.survey.Survey;
 import happyaging.server.domain.user.User;
 import happyaging.server.domain.user.UserType;
 import happyaging.server.dto.admin.ManagerCreateRequestDTO;
 import happyaging.server.dto.admin.ManagerReadResponseDTO;
 import happyaging.server.dto.admin.PagingResponse;
+import happyaging.server.dto.admin.ReadSurveyResponseDTO;
 import happyaging.server.dto.admin.ReadUserResponseDTO;
 import happyaging.server.dto.admin.StatisticDTO;
 import happyaging.server.exception.AppException;
@@ -13,8 +17,11 @@ import happyaging.server.repository.senior.SeniorRepository;
 import happyaging.server.repository.survey.SurveyRepository;
 import happyaging.server.repository.user.UserRepository;
 import happyaging.server.service.auth.AuthService;
+import happyaging.server.service.result.ResultService;
+import happyaging.server.service.senior.SeniorService;
 import happyaging.server.service.user.UserService;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +47,8 @@ public class AdminController {
 
     private final UserService userService;
     private final AuthService authService;
+    private final ResultService resultService;
+    private final SeniorService seniorService;
 
     private final UserRepository userRepository;
     private final SeniorRepository seniorRepository;
@@ -98,5 +107,25 @@ public class AdminController {
                 .map(ReadUserResponseDTO::create)
                 .toList();
         return new PagingResponse<>(pageNumber.hasNext(), readUserResponseDTOS);
+    }
+
+    @Transactional(readOnly = true)
+    @GetMapping("/survey")
+    public PagingResponse<ReadSurveyResponseDTO> readSurvey(@RequestParam Integer page,
+                                                            @RequestParam(required = false) LocalDate startDate,
+                                                            @RequestParam(required = false) LocalDate endDate,
+                                                            @RequestParam(required = false) String seniorName,
+                                                            @RequestParam(required = false) String seniorAddress,
+                                                            @RequestParam(required = false) String userName) {
+        Page<Survey> pageNumber = surveyRepository.findAllBySenior_NameAndSenior_AddressAndSenior_User_NameAndDateBetweenOrderByDateDesc(
+                seniorName, seniorAddress, userName, startDate, endDate, PageRequest.of(page, 20));
+        List<ReadSurveyResponseDTO> readSurveyResponseDTOS = pageNumber.getContent().stream()
+                .map(survey -> {
+                    Result result = resultService.findBySurvey(survey);
+                    Senior senior = seniorService.findSeniorById(survey.getSenior().getId());
+                    return ReadSurveyResponseDTO.create(survey, result, senior);
+                })
+                .toList();
+        return new PagingResponse<>(pageNumber.hasNext(), readSurveyResponseDTOS);
     }
 }

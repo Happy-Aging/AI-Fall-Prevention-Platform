@@ -65,4 +65,5 @@ public class SeniorController {
         seniorService.saveSeniorImages(seniorId, location, imageFiles);
         return ResponseEntity.ok().build();
     }
+
 }

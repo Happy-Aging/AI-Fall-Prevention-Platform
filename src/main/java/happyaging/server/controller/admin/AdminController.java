@@ -6,6 +6,7 @@ import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.survey.Survey;
 import happyaging.server.domain.user.User;
 import happyaging.server.domain.user.UserType;
+import happyaging.server.dto.admin.senior.ReadSeniorDTO;
 import happyaging.server.dto.admin.survey.ReadResponseDTO;
 import happyaging.server.dto.admin.survey.ReadSurveyDTO;
 import happyaging.server.dto.admin.user.CreateManagerDTO;
@@ -113,6 +114,18 @@ public class AdminController {
                 .map(ReadUserDTO::create)
                 .toList();
         return new PagingResponse<>(pageNumber.hasNext(), readUserDTOS);
+    }
+
+    @Transactional(readOnly = true)
+    @GetMapping("/senior")
+    public PagingResponse<ReadSeniorDTO> readSenior(@RequestParam Integer page,
+                                                    @RequestParam(required = false) String name) {
+        Page<Senior> pageNumber = seniorRepository.findAllByUser_NameContainingOrderByUserIdAsc(name,
+                PageRequest.of(page, 20));
+        List<ReadSeniorDTO> readSeniorDTOS = pageNumber.getContent().stream()
+                .map(ReadSeniorDTO::create)
+                .toList();
+        return new PagingResponse<>(pageNumber.hasNext(), readSeniorDTOS);
     }
 
     @Transactional(readOnly = true)

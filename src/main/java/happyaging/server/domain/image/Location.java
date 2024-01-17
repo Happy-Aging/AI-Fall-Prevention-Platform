@@ -1,5 +1,6 @@
 package happyaging.server.domain.image;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
 import java.util.stream.Stream;
@@ -23,5 +24,13 @@ public enum Location {
                 .filter(value -> value.name.equals(location))
                 .findFirst()
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_LOCATION));
+    }
+
+    @JsonCreator
+    public static Location convertLocation(String location) {
+        return Stream.of(Location.values())
+                .filter(value -> value.name().equals(location))
+                .findFirst()
+                .orElse(null);
     }
 }

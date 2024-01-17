@@ -44,12 +44,12 @@ public class SeniorService {
     private String uploadDir;
 
     @Transactional
-    public Long createSenior(Long userId, SeniorRequestDTO seniorRequestDTO) {
+    public Senior createSenior(Long userId, SeniorRequestDTO seniorRequestDTO) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_USER));
         Senior senior = Senior.create(user, seniorRequestDTO);
         seniorRepository.save(senior);
-        return senior.getId();
+        return senior;
     }
 
     @Transactional

@@ -79,11 +79,12 @@ public class User {
                 .build();
     }
 
-    public static User createManager(String email, String password, String name, String phoneNumber) {
+    public static User createManager(String email, String password, String name, String phoneNumber,
+                                     BCryptPasswordEncoder encoder) {
         return User.builder()
                 .name(name)
                 .email(email)
-                .password(password)
+                .password(encoder.encode(password))
                 .phoneNumber(phoneNumber)
                 .userType(UserType.MANAGER)
                 .vendor(Vendor.HAPPY_AGING)

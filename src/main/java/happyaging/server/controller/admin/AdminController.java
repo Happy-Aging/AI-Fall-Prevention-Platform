@@ -73,7 +73,7 @@ public class AdminController {
     public Long createManager(@RequestBody @Valid CreateManagerDTO request) {
         authService.checkDuplicateEmail(request.getEmail());
         User user = User.createManager(request.getEmail(), request.getPassword(), request.getName(),
-                request.getPhoneNumber());
+                request.getPhoneNumber(), encoder);
         userRepository.save(user);
         return user.getId();
     }
@@ -120,8 +120,8 @@ public class AdminController {
     @GetMapping("/senior")
     public PagingResponse<ReadSeniorDTO> readSenior(@RequestParam Integer page,
                                                     @RequestParam(required = false) String name) {
-        Page<Senior> pageNumber = seniorRepository.findAllByUser_NameContainingOrderByUserIdAsc(name,
-                PageRequest.of(page, 20));
+        Page<Senior> pageNumber = seniorRepository.findAllByUser_NameContainingAndUser_UserType(name,
+                UserType.MANAGER, PageRequest.of(page, 20));
         List<ReadSeniorDTO> readSeniorDTOS = pageNumber.getContent().stream()
                 .map(ReadSeniorDTO::create)
                 .toList();
@@ -136,8 +136,20 @@ public class AdminController {
                                                     @RequestParam(required = false) String seniorName,
                                                     @RequestParam(required = false) String seniorAddress,
                                                     @RequestParam(required = false) String userName) {
-        Page<Survey> pageNumber = surveyRepository.findAllBySenior_NameAndSenior_AddressAndSenior_User_NameAndDateBetweenOrderByDateDesc(
-                seniorName, seniorAddress, userName, startDate, endDate, PageRequest.of(page, 20));
+        Page<Survey> pageNumber;
+        if (startDate == null) {
+            startDate = LocalDate.of(2024, 1, 1);
+        }
+        if (endDate == null) {
+            endDate = LocalDate.now();
+        }
+        if (seniorName.isEmpty()) {
+            pageNumber = surveyRepository.findAllBySenior_AddressContainingAndSenior_User_NameContainingAndDateBetweenOrderByDateDesc(
+                    seniorAddress, userName, startDate, endDate, PageRequest.of(page, 20));
+        } else {
+            pageNumber = surveyRepository.findAllBySenior_NameAndSenior_AddressContainingAndSenior_User_NameContainingAndDateBetweenOrderByDateDesc(
+                    seniorName, seniorAddress, userName, startDate, endDate, PageRequest.of(page, 20));
+        }
         List<ReadSurveyDTO> readSurveyDTOS = pageNumber.getContent().stream()
                 .map(survey -> {
                     Result result = resultService.findBySurvey(survey);

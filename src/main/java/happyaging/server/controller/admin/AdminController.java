@@ -5,6 +5,7 @@ import happyaging.server.domain.user.UserType;
 import happyaging.server.dto.admin.ManagerCreateRequestDTO;
 import happyaging.server.dto.admin.ManagerReadResponseDTO;
 import happyaging.server.dto.admin.PagingResponse;
+import happyaging.server.dto.admin.ReadUserResponseDTO;
 import happyaging.server.dto.admin.StatisticDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
@@ -79,11 +80,23 @@ public class AdminController {
     @GetMapping("/user/manager")
     public PagingResponse<ManagerReadResponseDTO> readManager(@RequestParam Integer page,
                                                               @RequestParam(required = false) String name) {
-        Page<User> pageNumber = userRepository.findAllByNameContainingAndUserType(name, UserType.MANAGER,
-                PageRequest.of(page, 20));
+        Page<User> pageNumber = userRepository.findAllByNameContainingAndUserTypeOrderByCreatedAtDesc(name,
+                UserType.MANAGER, PageRequest.of(page, 20));
         List<ManagerReadResponseDTO> managerReadResponseDTOS = pageNumber.getContent().stream()
                 .map(ManagerReadResponseDTO::create)
                 .toList();
         return new PagingResponse<>(pageNumber.hasNext(), managerReadResponseDTOS);
+    }
+
+    @Transactional(readOnly = true)
+    @GetMapping("/user")
+    public PagingResponse<ReadUserResponseDTO> readUser(@RequestParam Integer page,
+                                                        @RequestParam(required = false) String name) {
+        Page<User> pageNumber = userRepository.findAllByNameContainingOrderByCreatedAtDesc(name,
+                PageRequest.of(page, 20));
+        List<ReadUserResponseDTO> readUserResponseDTOS = pageNumber.getContent().stream()
+                .map(ReadUserResponseDTO::create)
+                .toList();
+        return new PagingResponse<>(pageNumber.hasNext(), readUserResponseDTOS);
     }
 }

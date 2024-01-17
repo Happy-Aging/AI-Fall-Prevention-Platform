@@ -2,8 +2,10 @@ package happyaging.server.dto.admin;
 
 import happyaging.server.domain.user.User;
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
+@Getter
 public class ManagerReadResponseDTO {
     private Long id;
     private String email;

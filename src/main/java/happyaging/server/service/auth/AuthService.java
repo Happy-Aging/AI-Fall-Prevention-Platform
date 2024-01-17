@@ -90,7 +90,8 @@ public class AuthService {
         throw new AppException(AuthErrorCode.INVALID_EXTERNAL_TOKEN);
     }
 
-    private void checkDuplicateEmail(String email) {
+    @Transactional(readOnly = true)
+    public void checkDuplicateEmail(String email) {
         userRepository.findByEmail(email).ifPresent(user -> {
             throw new AppException(AuthErrorCode.EMAIL_DUPLICATED);
         });

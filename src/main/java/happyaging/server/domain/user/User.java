@@ -87,6 +87,7 @@ public class User {
                 .phoneNumber(phoneNumber)
                 .userType(UserType.MANAGER)
                 .vendor(Vendor.HAPPY_AGING)
+                .createdAt(LocalDate.now())
                 .build();
     }
 

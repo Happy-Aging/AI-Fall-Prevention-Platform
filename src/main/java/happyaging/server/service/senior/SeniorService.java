@@ -40,7 +40,7 @@ public class SeniorService {
     private final ExampleImageRepository exampleImageRepository;
     private final SeniorImageRepository seniorImageRepository;
 
-    @Value("${file.upload-dir}")
+    @Value("${file.senior-room}")
     private String uploadDir;
 
     @Transactional

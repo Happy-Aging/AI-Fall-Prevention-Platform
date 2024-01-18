@@ -31,13 +31,20 @@ import happyaging.server.service.senior.SeniorService;
 import happyaging.server.service.survey.SurveyService;
 import happyaging.server.service.user.UserService;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -49,6 +56,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,6 +77,9 @@ public class AdminController {
     private final ProductRepository productRepository;
     private final InstalledImageRepository installedImageRepository;
     private final BCryptPasswordEncoder encoder;
+
+    @Value("${file.static-image}")
+    private String staticPath;
 
     @Transactional(readOnly = true)
     @GetMapping("/statistics")
@@ -188,5 +199,35 @@ public class AdminController {
             productInfos.add(ProductInfo.create(product, installImages));
         }
         return productInfos;
+    }
+
+    @Transactional
+    @PostMapping("/install/{productId}")
+    public ResponseEntity<Object> addInstallImage(@RequestParam("imageFiles") MultipartFile[] images,
+                                                  @PathVariable Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_PRODUCT));
+        List<String> filePaths = uploadFiles(images);
+        List<InstalledImage> installedImages = filePaths.stream()
+                .map(image -> InstalledImage.create(image, product))
+                .toList();
+        installedImageRepository.saveAll(installedImages);
+        return ResponseEntity.ok().build();
+    }
+
+    private List<String> uploadFiles(MultipartFile[] images) {
+        List<String> filePaths = new ArrayList<>();
+        String path = staticPath + "/install";
+        try {
+            for (MultipartFile image : images) {
+                String fileName = image.getOriginalFilename();
+                Path filePath = Paths.get(path, fileName);
+                Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                filePaths.add("http://3.37.58.59:8080/image/install/" + fileName);
+            }
+            return filePaths;
+        } catch (IOException exception) {
+            throw new AppException(AppErrorCode.CANNOT_SAVE_IMAGES);
+        }
     }
 }

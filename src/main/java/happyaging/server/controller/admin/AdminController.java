@@ -1,11 +1,14 @@
 package happyaging.server.controller.admin;
 
+import happyaging.server.domain.product.InstalledImage;
+import happyaging.server.domain.product.Product;
 import happyaging.server.domain.response.Response;
 import happyaging.server.domain.result.Result;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.survey.Survey;
 import happyaging.server.domain.user.User;
 import happyaging.server.domain.user.UserType;
+import happyaging.server.dto.admin.product.ProductInfo;
 import happyaging.server.dto.admin.senior.ReadSeniorDTO;
 import happyaging.server.dto.admin.survey.ReadResponseDTO;
 import happyaging.server.dto.admin.survey.ReadSurveyDTO;
@@ -16,6 +19,8 @@ import happyaging.server.dto.admin.util.PagingResponse;
 import happyaging.server.dto.admin.util.StatisticDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
+import happyaging.server.repository.product.InstalledImageRepository;
+import happyaging.server.repository.product.ProductRepository;
 import happyaging.server.repository.senior.SeniorRepository;
 import happyaging.server.repository.survey.SurveyRepository;
 import happyaging.server.repository.user.UserRepository;
@@ -27,6 +32,7 @@ import happyaging.server.service.survey.SurveyService;
 import happyaging.server.service.user.UserService;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +66,8 @@ public class AdminController {
     private final UserRepository userRepository;
     private final SeniorRepository seniorRepository;
     private final SurveyRepository surveyRepository;
+    private final ProductRepository productRepository;
+    private final InstalledImageRepository installedImageRepository;
     private final BCryptPasswordEncoder encoder;
 
     @Transactional(readOnly = true)
@@ -167,5 +175,18 @@ public class AdminController {
         List<Response> responses = responseService.findResponsesBySurvey(survey);
         return responses.stream().map(ReadResponseDTO::create)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @GetMapping("/product")
+    public List<ProductInfo> readProducts() {
+        List<ProductInfo> productInfos = new ArrayList<>();
+
+        List<Product> products = productRepository.findAll();
+        for (Product product : products) {
+            List<InstalledImage> installImages = installedImageRepository.findAllByProductId(product.getId());
+            productInfos.add(ProductInfo.create(product, installImages));
+        }
+        return productInfos;
     }
 }

@@ -21,9 +21,11 @@ import happyaging.server.dto.admin.user.ReadManagerDTO;
 import happyaging.server.dto.admin.user.ReadUserDTO;
 import happyaging.server.dto.admin.util.PagingResponse;
 import happyaging.server.dto.admin.util.StatisticDTO;
+import happyaging.server.dto.senior.SeniorResponseDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.repository.image.ExampleImageRepository;
+import happyaging.server.repository.image.SeniorImageRepository;
 import happyaging.server.repository.product.InstalledImageRepository;
 import happyaging.server.repository.product.ProductRepository;
 import happyaging.server.repository.senior.SeniorRepository;
@@ -82,6 +84,7 @@ public class AdminController {
     private final ProductRepository productRepository;
     private final InstalledImageRepository installedImageRepository;
     private final ExampleImageRepository exampleImageRepository;
+    private final SeniorImageRepository seniorImageRepository;
     private final BCryptPasswordEncoder encoder;
 
     @Value("${file.static-image}")
@@ -243,9 +246,8 @@ public class AdminController {
     @PutMapping("/image")
     public ResponseEntity<Object> updateInstallImageInfo(@RequestBody UpdateExampleImageDTO dto) {
         List<String> descriptions = dto.getDescription();
-        Location location = Location.toLocation(dto.getLocation());
 
-        List<ExampleImage> images = exampleImageRepository.findAllByLocation(location);
+        List<ExampleImage> images = exampleImageRepository.findAllByLocation(dto.getLocation());
         for (int i = 0; i < images.size(); i++) {
             images.get(i).updateInfo(descriptions.get(i));
         }
@@ -254,11 +256,9 @@ public class AdminController {
     }
 
     @Transactional
-    @PutMapping("/image")
-    public ResponseEntity<Object> updateInstallImage(@RequestParam("location") String locationValue,
+    @PutMapping("/image/{location}")
+    public ResponseEntity<Object> updateInstallImage(@PathVariable Location location,
                                                      @RequestParam("imageFiles") MultipartFile[] imageFiles) {
-        Location location = Location.toLocation(locationValue);
-
         List<ExampleImage> images = exampleImageRepository.findAllByLocation(location);
         List<String> filePaths = uploadFiles(imageFiles, "/example");
         for (int i = 0; i < images.size(); i++) {
@@ -266,6 +266,15 @@ public class AdminController {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    @Transactional(readOnly = true)
+    @GetMapping("/senior/image")
+    public List<SeniorResponseDTO> readSeniorWithImage() {
+        List<Senior> seniors = seniorImageRepository.findAllSeniorsWithImages();
+        return seniors.stream()
+                .map(SeniorResponseDTO::create)
+                .toList();
     }
 
     private List<String> uploadFiles(MultipartFile[] images, String imagePath) {

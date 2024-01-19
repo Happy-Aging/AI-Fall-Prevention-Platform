@@ -39,7 +39,6 @@ public class SurveyController {
         Senior senior = seniorService.findSeniorById(seniorId);
         ResultResponseDTO resultResponseDTO = surveyService.submit(senior, responseRequestDTOS);
         seniorService.updateRank(senior, resultResponseDTO.getRank());
-        // TODO: senior 추천 물품 update
         return resultResponseDTO;
     }
 

@@ -43,9 +43,19 @@ public class Question {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ResponseType responseType;
-    
+
     private String image;
 
     @OneToMany(mappedBy = "question")
     private List<Option> options = new ArrayList<>();
+
+    public static Question create(String number, String content, QuestionType questionType, ResponseType responseType) {
+        return Question.builder()
+                .number(number)
+                .content(content)
+                .questionType(questionType)
+                .responseType(responseType)
+                .options(new ArrayList<>())
+                .build();
+    }
 }

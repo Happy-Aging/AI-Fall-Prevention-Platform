@@ -17,7 +17,8 @@ public enum AppErrorCode implements ErrorCode {
     CANNOT_SAVE_IMAGES(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 저장할 수 없습니다."),
     INVALID_LOCATION(HttpStatus.NOT_FOUND, "올바르지 않은 위치입니다."),
     INVALID_SURVEY(HttpStatus.NOT_FOUND, "존재하지 않는 설문조사입니다."),
-    INVALID_INSTALL_IMAGE(HttpStatus.NOT_FOUND, "존재하지 않는 설치사진입니다.");
+    INVALID_INSTALL_IMAGE(HttpStatus.NOT_FOUND, "존재하지 않는 설치사진입니다."),
+    INVALID_QUESTION_NUMBER(HttpStatus.BAD_REQUEST, "유효하지 않은 번호입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

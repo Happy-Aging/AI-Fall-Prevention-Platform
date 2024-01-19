@@ -3,8 +3,10 @@ package happyaging.server.controller.admin;
 import happyaging.server.domain.image.ExampleImage;
 import happyaging.server.domain.image.Location;
 import happyaging.server.domain.image.SeniorImage;
+import happyaging.server.domain.option.Option;
 import happyaging.server.domain.product.InstalledImage;
 import happyaging.server.domain.product.Product;
+import happyaging.server.domain.question.Question;
 import happyaging.server.domain.response.Response;
 import happyaging.server.domain.result.Result;
 import happyaging.server.domain.senior.Senior;
@@ -23,12 +25,15 @@ import happyaging.server.dto.admin.user.ReadUserDTO;
 import happyaging.server.dto.admin.util.PagingResponse;
 import happyaging.server.dto.admin.util.StatisticDTO;
 import happyaging.server.dto.senior.SeniorResponseDTO;
+import happyaging.server.dto.survey.CreateQuestionDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.repository.image.ExampleImageRepository;
 import happyaging.server.repository.image.SeniorImageRepository;
+import happyaging.server.repository.option.OptionRepository;
 import happyaging.server.repository.product.InstalledImageRepository;
 import happyaging.server.repository.product.ProductRepository;
+import happyaging.server.repository.question.QuestionRepository;
 import happyaging.server.repository.senior.SeniorRepository;
 import happyaging.server.repository.survey.SurveyRepository;
 import happyaging.server.repository.user.UserRepository;
@@ -93,6 +98,8 @@ public class AdminController {
     private final InstalledImageRepository installedImageRepository;
     private final ExampleImageRepository exampleImageRepository;
     private final SeniorImageRepository seniorImageRepository;
+    private final QuestionRepository questionRepository;
+    private final OptionRepository optionRepository;
     private final BCryptPasswordEncoder encoder;
 
     @Value("${file.static-image}")
@@ -302,6 +309,30 @@ public class AdminController {
         } catch (IOException exception) {
             throw new AppException(AppErrorCode.INVALID_FILE);
         }
+    }
+
+    @Transactional
+    @PostMapping("/survey")
+    public ResponseEntity<Object> createQuestion(@RequestBody @Valid CreateQuestionDTO dto) {
+        String number = checkValidNumber(dto.getNumber());
+        Question question = Question.create(number, dto.getContent(), dto.getQuestionType(),
+                dto.getResponseType());
+        questionRepository.save(question);
+        if (dto.getOptions() != null) {
+            List<Option> options = dto.getOptions().stream()
+                    .map(option -> Option.create(option.getContent(), question))
+                    .toList();
+            optionRepository.saveAll(options);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    private String checkValidNumber(String number) {
+        String[] numbers = number.split("-");
+        if (Integer.parseInt(numbers[0]) < 15) {
+            throw new AppException(AppErrorCode.INVALID_QUESTION_NUMBER);
+        }
+        return numbers[0];
     }
 
     private Path createZipFileWithImages(List<SeniorImage> images) throws IOException {

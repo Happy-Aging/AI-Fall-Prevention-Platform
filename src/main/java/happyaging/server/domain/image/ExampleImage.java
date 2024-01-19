@@ -33,8 +33,11 @@ public class ExampleImage {
     @Column(nullable = false)
     private String description;
 
-    public void updateInfo(Location location, String description) {
-        this.location = location;
+    public void updateInfo(String description) {
         this.description = description;
+    }
+
+    public void updateImage(String imagePath) {
+        this.image = imagePath;
     }
 }

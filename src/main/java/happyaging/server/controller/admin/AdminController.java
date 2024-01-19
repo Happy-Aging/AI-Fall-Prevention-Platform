@@ -213,7 +213,7 @@ public class AdminController {
                                                   @PathVariable Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_PRODUCT));
-        List<String> filePaths = uploadFiles(images);
+        List<String> filePaths = uploadFiles(images, "/install");
         List<InstalledImage> installedImages = filePaths.stream()
                 .map(image -> InstalledImage.create(image, product))
                 .toList();
@@ -240,28 +240,43 @@ public class AdminController {
     }
 
     @Transactional
-    @PostMapping("/image")
-    public ResponseEntity<Object> updateInstallImage(@RequestBody UpdateExampleImageDTO dto) {
+    @PutMapping("/image")
+    public ResponseEntity<Object> updateInstallImageInfo(@RequestBody UpdateExampleImageDTO dto) {
         List<String> descriptions = dto.getDescription();
         Location location = Location.toLocation(dto.getLocation());
 
         List<ExampleImage> images = exampleImageRepository.findAllByLocation(location);
         for (int i = 0; i < images.size(); i++) {
-            images.get(i).updateInfo(location, descriptions.get(i));
+            images.get(i).updateInfo(descriptions.get(i));
         }
 
         return ResponseEntity.ok().build();
     }
 
-    private List<String> uploadFiles(MultipartFile[] images) {
+    @Transactional
+    @PutMapping("/image")
+    public ResponseEntity<Object> updateInstallImage(@RequestParam("location") String locationValue,
+                                                     @RequestParam("imageFiles") MultipartFile[] imageFiles) {
+        Location location = Location.toLocation(locationValue);
+
+        List<ExampleImage> images = exampleImageRepository.findAllByLocation(location);
+        List<String> filePaths = uploadFiles(imageFiles, "/example");
+        for (int i = 0; i < images.size(); i++) {
+            images.get(i).updateImage(filePaths.get(i));
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    private List<String> uploadFiles(MultipartFile[] images, String imagePath) {
         List<String> filePaths = new ArrayList<>();
-        String path = staticPath + "/install";
+        String path = staticPath + imagePath;
         try {
             for (MultipartFile image : images) {
                 String fileName = image.getOriginalFilename();
                 Path filePath = Paths.get(path, fileName);
                 Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                filePaths.add("http://3.37.58.59:8080/image/install/" + fileName);
+                filePaths.add("http://3.37.58.59:8080/image" + imagePath + "/" + fileName);
             }
             return filePaths;
         } catch (IOException exception) {

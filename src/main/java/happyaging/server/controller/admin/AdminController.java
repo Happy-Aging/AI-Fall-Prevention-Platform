@@ -48,6 +48,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import lombok.RequiredArgsConstructor;
@@ -325,10 +326,12 @@ public class AdminController {
         String path = staticPath + imagePath;
         try {
             for (MultipartFile image : images) {
-                String fileName = image.getOriginalFilename();
-                Path filePath = Paths.get(path, fileName);
+                String originalFilename = image.getOriginalFilename();
+                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                String newFileName = UUID.randomUUID() + fileExtension;
+                Path filePath = Paths.get(path, newFileName);
                 Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                filePaths.add("http://3.37.58.59:8080/image" + imagePath + "/" + fileName);
+                filePaths.add("http://3.37.58.59:8080/image" + imagePath + "/" + newFileName);
             }
             return filePaths;
         } catch (IOException exception) {

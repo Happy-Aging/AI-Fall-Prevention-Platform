@@ -9,6 +9,7 @@ import happyaging.server.domain.survey.Survey;
 import happyaging.server.domain.user.User;
 import happyaging.server.domain.user.UserType;
 import happyaging.server.dto.admin.product.ProductInfo;
+import happyaging.server.dto.admin.product.ReadProductInstallDTO;
 import happyaging.server.dto.admin.senior.ReadSeniorDTO;
 import happyaging.server.dto.admin.survey.ReadResponseDTO;
 import happyaging.server.dto.admin.survey.ReadSurveyDTO;
@@ -213,6 +214,15 @@ public class AdminController {
                 .toList();
         installedImageRepository.saveAll(installedImages);
         return ResponseEntity.ok().build();
+    }
+
+    @Transactional(readOnly = true)
+    @GetMapping("/install/{productId}")
+    public List<ReadProductInstallDTO> readProductInstallImage(@PathVariable Long productId) {
+        List<InstalledImage> images = installedImageRepository.findAllByProductId(productId);
+        return images.stream()
+                .map(ReadProductInstallDTO::create)
+                .toList();
     }
 
     private List<String> uploadFiles(MultipartFile[] images) {

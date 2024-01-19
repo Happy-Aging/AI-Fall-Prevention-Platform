@@ -32,4 +32,9 @@ public class ExampleImage {
 
     @Column(nullable = false)
     private String description;
+
+    public void updateInfo(Location location, String description) {
+        this.location = location;
+        this.description = description;
+    }
 }

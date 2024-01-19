@@ -1,5 +1,7 @@
 package happyaging.server.controller.admin;
 
+import happyaging.server.domain.image.ExampleImage;
+import happyaging.server.domain.image.Location;
 import happyaging.server.domain.product.InstalledImage;
 import happyaging.server.domain.product.Product;
 import happyaging.server.domain.response.Response;
@@ -8,6 +10,7 @@ import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.survey.Survey;
 import happyaging.server.domain.user.User;
 import happyaging.server.domain.user.UserType;
+import happyaging.server.dto.admin.image.UpdateExampleImageDTO;
 import happyaging.server.dto.admin.product.ProductInfo;
 import happyaging.server.dto.admin.product.ReadProductInstallDTO;
 import happyaging.server.dto.admin.senior.ReadSeniorDTO;
@@ -20,6 +23,7 @@ import happyaging.server.dto.admin.util.PagingResponse;
 import happyaging.server.dto.admin.util.StatisticDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
+import happyaging.server.repository.image.ExampleImageRepository;
 import happyaging.server.repository.product.InstalledImageRepository;
 import happyaging.server.repository.product.ProductRepository;
 import happyaging.server.repository.senior.SeniorRepository;
@@ -77,6 +81,7 @@ public class AdminController {
     private final SurveyRepository surveyRepository;
     private final ProductRepository productRepository;
     private final InstalledImageRepository installedImageRepository;
+    private final ExampleImageRepository exampleImageRepository;
     private final BCryptPasswordEncoder encoder;
 
     @Value("${file.static-image}")
@@ -231,6 +236,20 @@ public class AdminController {
         InstalledImage image = installedImageRepository.findById(installId)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_INSTALL_IMAGE));
         installedImageRepository.delete(image);
+        return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    @PostMapping("/image")
+    public ResponseEntity<Object> updateInstallImage(@RequestBody UpdateExampleImageDTO dto) {
+        List<String> descriptions = dto.getDescription();
+        Location location = Location.toLocation(dto.getLocation());
+
+        List<ExampleImage> images = exampleImageRepository.findAllByLocation(location);
+        for (int i = 0; i < images.size(); i++) {
+            images.get(i).updateInfo(location, descriptions.get(i));
+        }
+
         return ResponseEntity.ok().build();
     }
 

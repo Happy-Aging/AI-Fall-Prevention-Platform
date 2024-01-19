@@ -2,6 +2,7 @@ package happyaging.server.controller.admin;
 
 import happyaging.server.domain.image.ExampleImage;
 import happyaging.server.domain.image.Location;
+import happyaging.server.domain.image.SeniorImage;
 import happyaging.server.domain.product.InstalledImage;
 import happyaging.server.domain.product.Product;
 import happyaging.server.domain.response.Response;
@@ -38,6 +39,7 @@ import happyaging.server.service.senior.SeniorService;
 import happyaging.server.service.survey.SurveyService;
 import happyaging.server.service.user.UserService;
 import jakarta.validation.Valid;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,11 +48,16 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -276,6 +283,42 @@ public class AdminController {
                 .map(SeniorResponseDTO::create)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    @GetMapping("/senior/image/{seniorId}")
+    public ResponseEntity<Resource> readSeniorImages(@PathVariable Long seniorId) {
+        Senior senior = seniorService.findSeniorById(seniorId);
+        List<SeniorImage> images = seniorImageRepository.findAllBySenior(senior);
+        try {
+            Path zipFilePath = createZipFileWithImages(images);
+            Resource resource = new UrlResource(zipFilePath.toUri());
+            zipFilePath.toFile().deleteOnExit();
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("application/zip"))
+                    .header("Content-Disposition", "attachment; filename=\"images.zip\"")
+                    .body(resource);
+        } catch (IOException exception) {
+            throw new AppException(AppErrorCode.INVALID_FILE);
+        }
+    }
+
+    private Path createZipFileWithImages(List<SeniorImage> images) throws IOException {
+        Path zipFilePath = Files.createTempFile("images-", ".zip");
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFilePath.toFile()))) {
+            for (SeniorImage image : images) {
+                Path path = Paths.get(image.getImage());
+                if (Files.exists(path) && !Files.isDirectory(path)) {
+                    ZipEntry zipEntry = new ZipEntry(path.getFileName().toString());
+                    zos.putNextEntry(zipEntry);
+                    Files.copy(path, zos);
+                    zos.closeEntry();
+                }
+            }
+        }
+        return zipFilePath;
+    }
+
 
     private List<String> uploadFiles(MultipartFile[] images, String imagePath) {
         List<String> filePaths = new ArrayList<>();

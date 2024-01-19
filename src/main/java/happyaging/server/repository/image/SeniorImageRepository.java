@@ -13,4 +13,6 @@ public interface SeniorImageRepository extends JpaRepository<SeniorImage, Long> 
 
     @Query("SELECT DISTINCT si.senior FROM SeniorImage si")
     List<Senior> findAllSeniorsWithImages();
+
+    List<SeniorImage> findAllBySenior(Senior senior);
 }

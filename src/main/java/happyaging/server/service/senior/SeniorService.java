@@ -96,7 +96,6 @@ public class SeniorService {
     @Transactional
     public void saveSeniorImages(Long seniorId, String location, MultipartFile[] imageFiles) {
         Senior senior = findSeniorById(seniorId);
-        seniorImageRepository.deleteALLBySeniorId(seniorId);
         for (MultipartFile file : imageFiles) {
             if (!file.isEmpty()) {
                 String filePath = saveFile(file);
@@ -120,11 +119,12 @@ public class SeniorService {
     private String createFileName(MultipartFile file) {
         String originalFileName = file.getOriginalFilename();
         String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        return UUID.randomUUID().toString() + fileExtension;
+        return UUID.randomUUID() + fileExtension;
     }
 
     private void saveFileData(Senior senior, String filePath, String location) {
         SeniorImage seniorImage = SeniorImage.create(filePath, Location.toLocation(location.trim()), senior);
+        log.info(seniorImage.getImage());
         seniorImageRepository.save(seniorImage);
     }
 

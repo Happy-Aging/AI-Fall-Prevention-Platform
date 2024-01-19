@@ -218,11 +218,20 @@ public class AdminController {
 
     @Transactional(readOnly = true)
     @GetMapping("/install/{productId}")
-    public List<ReadProductInstallDTO> readProductInstallImage(@PathVariable Long productId) {
+    public List<ReadProductInstallDTO> readInstallImage(@PathVariable Long productId) {
         List<InstalledImage> images = installedImageRepository.findAllByProductId(productId);
         return images.stream()
                 .map(ReadProductInstallDTO::create)
                 .toList();
+    }
+
+    @Transactional
+    @DeleteMapping("/install/{installId}")
+    public ResponseEntity<Object> deleteInstallImage(@PathVariable Long installId) {
+        InstalledImage image = installedImageRepository.findById(installId)
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_INSTALL_IMAGE));
+        installedImageRepository.delete(image);
+        return ResponseEntity.ok().build();
     }
 
     private List<String> uploadFiles(MultipartFile[] images) {

@@ -18,7 +18,7 @@ public class QuestionService {
 
     @Transactional(readOnly = true)
     public List<Question> readAllQuestions() {
-        List<Question> questions = questionRepository.findAll();
+        List<Question> questions = questionRepository.findAllByValid(Boolean.TRUE);
         return sortQuestions(questions);
     }
 

@@ -327,9 +327,20 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @Transactional
+    @DeleteMapping("survey/{questionId}")
+    public ResponseEntity<Object> deleteQuestion(@PathVariable Long questionId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new AppException(AppErrorCode.INVALID_QUESTION));
+        checkValidNumber(question.getNumber());
+        question.delete();
+        return ResponseEntity.ok().build();
+    }
+
     private String checkValidNumber(String number) {
         String[] numbers = number.split("-");
-        if (Integer.parseInt(numbers[0]) < 15) {
+        int numberValue = Integer.parseInt(numbers[0]);
+        if (numberValue < 15 && numberValue > 0) {
             throw new AppException(AppErrorCode.INVALID_QUESTION_NUMBER);
         }
         return numbers[0];

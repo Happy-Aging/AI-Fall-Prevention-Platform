@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,6 +47,9 @@ public class Question {
 
     private String image;
 
+    @Column(nullable = false)
+    private Boolean valid;
+
     @OneToMany(mappedBy = "question")
     private List<Option> options = new ArrayList<>();
 
@@ -56,6 +60,12 @@ public class Question {
                 .questionType(questionType)
                 .responseType(responseType)
                 .options(new ArrayList<>())
+                .valid(Boolean.TRUE)
                 .build();
+    }
+
+    public void delete() {
+        this.number = UUID.randomUUID().toString();
+        this.valid = false;
     }
 }

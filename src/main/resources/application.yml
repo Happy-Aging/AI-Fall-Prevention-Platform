@@ -20,4 +20,3 @@ server:
       charset: UTF-8
       enabled: true
       force: true
-

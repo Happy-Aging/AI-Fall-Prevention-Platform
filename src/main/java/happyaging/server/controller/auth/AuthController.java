@@ -1,6 +1,8 @@
 package happyaging.server.controller.auth;
 
+import happyaging.server.domain.user.User;
 import happyaging.server.dto.auth.FindEmailDTO;
+import happyaging.server.dto.auth.FindPasswordDTO;
 import happyaging.server.dto.auth.JoinRequestDTO;
 import happyaging.server.dto.auth.LoginRequestDTO;
 import happyaging.server.dto.auth.LoginSuccessDTO;
@@ -55,5 +57,13 @@ public class AuthController {
     @GetMapping("/find/id")
     public String findEmail(@RequestBody @Valid FindEmailDTO findEmailDTO) {
         return userService.findEmail(findEmailDTO.getName(), findEmailDTO.getPhoneNumber());
+    }
+
+    @PostMapping("/find/password")
+    public ResponseEntity<Object> createNewPassword(@RequestBody FindPasswordDTO findPasswordDTO) {
+        User user = userService.findUserByEmail(findPasswordDTO.getEmail());
+        String tempPassword = userService.createNewPassword(user);
+        userService.sendEmail(user.getEmail(), tempPassword);
+        return ResponseEntity.ok().build();
     }
 }

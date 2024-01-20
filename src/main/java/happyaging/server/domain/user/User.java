@@ -113,4 +113,8 @@ public class User {
             this.password = encoder.encode(password);
         }
     }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }

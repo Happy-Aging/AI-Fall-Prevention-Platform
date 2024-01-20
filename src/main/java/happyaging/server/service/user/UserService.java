@@ -66,4 +66,13 @@ public class UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_USER));
     }
+
+    @Transactional(readOnly = true)
+    public String findEmail(String name, String phoneNumber) {
+        User user = userRepository.findByNameAndPhoneNumber(name, phoneNumber);
+        if (user == null) {
+            throw new AppException(AppErrorCode.INVALID_ACCOUNT);
+        }
+        return user.getEmail();
+    }
 }

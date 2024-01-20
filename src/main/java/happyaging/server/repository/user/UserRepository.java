@@ -17,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                                                       Pageable pageable);
 
     Page<User> findAllByNameContainingOrderByCreatedAtDesc(String name, PageRequest pageable);
+
+    User findByNameAndPhoneNumber(String name, String phoneNumber);
 }

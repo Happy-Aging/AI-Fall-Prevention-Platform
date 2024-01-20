@@ -27,6 +27,7 @@ public class AuthenticationConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/auth/**", "/image/**").permitAll()
                 .requestMatchers("/**").authenticated()
                 .and()

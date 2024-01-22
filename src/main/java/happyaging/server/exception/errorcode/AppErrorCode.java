@@ -20,7 +20,7 @@ public enum AppErrorCode implements ErrorCode {
     INVALID_INSTALL_IMAGE(HttpStatus.NOT_FOUND, "존재하지 않는 설치사진입니다."),
     INVALID_QUESTION_NUMBER(HttpStatus.BAD_REQUEST, "유효하지 않은 번호입니다."),
     INVALID_ACCOUNT(HttpStatus.BAD_REQUEST, "일치하는 계정을 찾을 수 없습니다."),
-    INVALID_ADMIN(HttpStatus.BAD_REQUEST, "관리자로 등록되지 않은 계정입니다.");
+    INVALID_ADMIN(HttpStatus.UNAUTHORIZED, "관리자로 등록되지 않은 계정입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

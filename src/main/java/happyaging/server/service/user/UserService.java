@@ -2,6 +2,7 @@ package happyaging.server.service.user;
 
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.user.User;
+import happyaging.server.dto.auth.ReadEmailDTO;
 import happyaging.server.dto.user.UserInfoDTO;
 import happyaging.server.dto.user.UserInfoUpdateDTO;
 import happyaging.server.exception.AppException;
@@ -12,6 +13,7 @@ import happyaging.server.service.senior.SeniorService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.security.SecureRandom;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -74,12 +76,14 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public String findEmail(String name, String phoneNumber) {
-        User user = userRepository.findByNameAndPhoneNumber(name, phoneNumber);
-        if (user == null) {
+    public List<ReadEmailDTO> findEmail(String name, String phoneNumber) {
+        List<User> users = userRepository.findAllByNameAndPhoneNumber(name, phoneNumber);
+        if (users.isEmpty()) {
             throw new AppException(AppErrorCode.INVALID_ACCOUNT);
         }
-        return user.getEmail();
+        return users.stream()
+                .map(ReadEmailDTO::create)
+                .toList();
     }
 
     @Transactional(readOnly = true)

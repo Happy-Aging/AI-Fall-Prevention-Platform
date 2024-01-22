@@ -2,6 +2,7 @@ package happyaging.server.repository.user;
 
 import happyaging.server.domain.user.User;
 import happyaging.server.domain.user.UserType;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,5 +19,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findAllByNameContainingOrderByCreatedAtDesc(String name, PageRequest pageable);
 
-    User findByNameAndPhoneNumber(String name, String phoneNumber);
+    List<User> findAllByNameAndPhoneNumber(String name, String phoneNumber);
 }

@@ -66,4 +66,9 @@ public class AuthController {
         userService.sendEmail(user.getEmail(), tempPassword);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/login/admin")
+    public LoginSuccessDTO adminLogin(@RequestBody @Valid LoginRequestDTO loginRequestDTO) {
+        return authService.adminLogin(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
+    }
 }

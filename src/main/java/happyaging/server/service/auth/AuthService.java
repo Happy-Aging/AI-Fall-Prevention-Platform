@@ -1,6 +1,7 @@
 package happyaging.server.service.auth;
 
 import happyaging.server.domain.user.User;
+import happyaging.server.domain.user.UserType;
 import happyaging.server.domain.user.Vendor;
 import happyaging.server.dto.auth.JoinRequestDTO;
 import happyaging.server.dto.auth.LoginFailureDTO;
@@ -50,6 +51,14 @@ public class AuthService {
             return ResponseEntity.ok(JwtUtil.createTokens(user));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginFailureDTO(email, vendor));
+    }
+
+    @Transactional(readOnly = true)
+    public LoginSuccessDTO adminLogin(String email, String password) {
+        User user = findUserByEmail(email);
+        checkIsAdmin(user.getUserType());
+        comparePassword(password, user.getPassword());
+        return JwtUtil.createTokens(user);
     }
 
     @Transactional
@@ -133,5 +142,11 @@ public class AuthService {
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_USER));
+    }
+
+    private void checkIsAdmin(UserType userType) {
+        if (userType != UserType.ADMIN) {
+            throw new AppException(AppErrorCode.INVALID_ADMIN);
+        }
     }
 }

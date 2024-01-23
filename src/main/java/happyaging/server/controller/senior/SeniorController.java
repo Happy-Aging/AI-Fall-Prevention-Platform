@@ -80,11 +80,6 @@ public class SeniorController {
     public ResponseEntity<Object> uploadImage(@RequestParam("location") String location,
                                               @RequestParam("imageFiles") MultipartFile[] imageFiles,
                                               @PathVariable Long seniorId) {
-        log.info("-----------------");
-        log.info("location " + location);
-        if (imageFiles == null) {
-            log.info("imageFIles is null");
-        }
         seniorService.saveSeniorImages(seniorId, location, imageFiles);
         return ResponseEntity.ok().build();
     }

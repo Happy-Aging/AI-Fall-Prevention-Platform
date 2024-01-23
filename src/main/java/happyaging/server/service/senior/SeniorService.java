@@ -97,13 +97,8 @@ public class SeniorService {
     @Transactional
     public void saveSeniorImages(Long seniorId, String location, MultipartFile[] imageFiles) {
         Senior senior = findSeniorById(seniorId);
-        log.info("실행");
         for (MultipartFile file : imageFiles) {
-            if (file == null) {
-                log.info("file is null");
-            }
             if (!file.isEmpty()) {
-                log.info("Received file: " + file.getOriginalFilename() + ", Size: " + file.getSize());
                 String filePath = saveFile(file);
                 saveFileData(senior, filePath, location);
             }

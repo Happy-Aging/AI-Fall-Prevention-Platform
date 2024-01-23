@@ -30,7 +30,7 @@ public class RecommendService {
                 recommends.add(Recommend.create(senior, product, Location.ENTRANCE));
             }
 
-            if (productId == 14 || productId == 7) {
+            if (productId == 14 || productId == 8) {
                 recommends.add(Recommend.create(senior, product, Location.KITCHEN));
             } else if (productId == 15) {
                 recommends.add(Recommend.create(senior, product, Location.BATHROOM));

@@ -5,6 +5,7 @@ import happyaging.server.domain.response.Response;
 import happyaging.server.domain.result.Result;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.survey.Survey;
+import happyaging.server.dto.admin.survey.ExcelDataDTO;
 import happyaging.server.dto.response.ResponseRequestDTO;
 import happyaging.server.dto.result.ResultResponseDTO;
 import happyaging.server.dto.survey.OptionDTO;
@@ -55,6 +56,18 @@ public class SurveyService {
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_SURVEY));
     }
 
+    @Transactional(readOnly = true)
+    public List<ExcelDataDTO> readAllData() {
+        List<ExcelDataDTO> data = new ArrayList<>();
+        List<Survey> surveys = surveyRepository.findAll();
+        for (Survey survey : surveys) {
+            Result result = resultService.findBySurvey(survey);
+            List<Response> responses = responseService.findResponsesBySurvey(survey);
+            data.add(ExcelDataDTO.create(survey, result.getRank(), responses));
+        }
+        return data;
+    }
+
     private List<ResultResponseDTO> creatResultResponseDTOS(List<Survey> surveys) {
         List<ResultResponseDTO> resultResponseDTOS = new ArrayList<>();
         for (Survey survey : surveys) {
@@ -79,5 +92,4 @@ public class SurveyService {
         Survey survey = Survey.create(senior);
         return surveyRepository.save(survey);
     }
-
 }

@@ -11,9 +11,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${file.static-image}")
     private String staticPath;
 
+    @Value("${file.senior-room}")
+    private String imagePath;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/image/**").addResourceLocations("file:" + staticPath + "/");
+        registry.addResourceHandler("/image/senior/**").addResourceLocations("file:" + imagePath + "/");
     }
 
     @Override

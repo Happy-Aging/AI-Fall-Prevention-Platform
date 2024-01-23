@@ -17,6 +17,7 @@ import happyaging.server.dto.admin.image.UpdateExampleImageDTO;
 import happyaging.server.dto.admin.product.ProductInfo;
 import happyaging.server.dto.admin.product.ReadProductInstallDTO;
 import happyaging.server.dto.admin.senior.ReadSeniorDTO;
+import happyaging.server.dto.admin.survey.ExcelDataDTO;
 import happyaging.server.dto.admin.survey.ReadResponseDTO;
 import happyaging.server.dto.admin.survey.ReadSurveyDTO;
 import happyaging.server.dto.admin.user.CreateManagerDTO;
@@ -37,6 +38,7 @@ import happyaging.server.repository.question.QuestionRepository;
 import happyaging.server.repository.senior.SeniorRepository;
 import happyaging.server.repository.survey.SurveyRepository;
 import happyaging.server.repository.user.UserRepository;
+import happyaging.server.service.admin.AdminService;
 import happyaging.server.service.auth.AuthService;
 import happyaging.server.service.response.ResponseService;
 import happyaging.server.service.result.ResultService;
@@ -59,10 +61,12 @@ import java.util.zip.ZipOutputStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -90,6 +94,7 @@ public class AdminController {
     private final SeniorService seniorService;
     private final SurveyService surveyService;
     private final ResponseService responseService;
+    private final AdminService adminService;
 
     private final UserRepository userRepository;
     private final SeniorRepository seniorRepository;
@@ -335,6 +340,16 @@ public class AdminController {
         checkValidNumber(question.getNumber());
         question.delete();
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/data")
+    public ResponseEntity<Resource> exportToExcel() {
+        List<ExcelDataDTO> data = surveyService.readAllData();
+        byte[] excelFile = adminService.createExcelFile(data);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=survey_data.xlsx")
+                .body(new ByteArrayResource(excelFile));
     }
 
     private String checkValidNumber(String number) {

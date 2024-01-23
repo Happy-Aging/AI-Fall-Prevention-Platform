@@ -5,6 +5,7 @@ import happyaging.server.domain.product.InstalledImage;
 import happyaging.server.domain.product.Product;
 import happyaging.server.domain.product.Recommend;
 import happyaging.server.domain.senior.Senior;
+import happyaging.server.dto.admin.senior.ReadSeniorImageDTO;
 import happyaging.server.dto.product.ReadRecommendResponseDTO;
 import happyaging.server.dto.senior.ImageResponseDTO;
 import happyaging.server.dto.senior.SeniorRequestDTO;
@@ -17,6 +18,7 @@ import happyaging.server.service.user.UserService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("senior")
+@Slf4j
 public class SeniorController {
     private final UserService userService;
     private final SeniorService seniorService;
@@ -77,18 +80,19 @@ public class SeniorController {
     public ResponseEntity<Object> uploadImage(@RequestParam("location") String location,
                                               @RequestParam("imageFiles") MultipartFile[] imageFiles,
                                               @PathVariable Long seniorId) {
+        log.info("-----------------");
+        log.info("location " + location);
+        if (imageFiles == null) {
+            log.info("imageFIles is null");
+        }
         seniorService.saveSeniorImages(seniorId, location, imageFiles);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{seniorId}/{location}")
-    public List<ReadRecommendResponseDTO> readRecommendProduct(@PathVariable Long seniorId,
-                                                               @PathVariable Location location) {
+    @GetMapping("/image/{seniorId}")
+    public List<ReadSeniorImageDTO> readSeniorImage(@PathVariable Long seniorId) {
         Senior senior = seniorService.findSeniorById(seniorId);
-        List<Recommend> recommends = recommendService.findALLBySeniorAndLocation(senior, location);
-        return recommends.stream()
-                .map(this::createReadRecommendResponseDTO)
-                .toList();
+        return seniorService.readSeniorImages(senior);
     }
 
     private ReadRecommendResponseDTO createReadRecommendResponseDTO(Recommend recommend) {
@@ -100,6 +104,16 @@ public class SeniorController {
         return ReadRecommendResponseDTO.create(product.getName(), product.getDescription(),
                 product.getImage(),
                 imagesPath);
+    }
+
+    @GetMapping("/{seniorId}/{location}")
+    public List<ReadRecommendResponseDTO> readRecommendProduct(@PathVariable Long seniorId,
+                                                               @PathVariable Location location) {
+        Senior senior = seniorService.findSeniorById(seniorId);
+        List<Recommend> recommends = recommendService.findALLBySeniorAndLocation(senior, location);
+        return recommends.stream()
+                .map(this::createReadRecommendResponseDTO)
+                .toList();
     }
 
 }

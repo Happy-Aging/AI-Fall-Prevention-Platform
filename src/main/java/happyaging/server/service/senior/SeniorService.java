@@ -5,6 +5,7 @@ import happyaging.server.domain.image.Location;
 import happyaging.server.domain.image.SeniorImage;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.user.User;
+import happyaging.server.dto.admin.senior.ReadSeniorImageDTO;
 import happyaging.server.dto.senior.ImageResponseDTO;
 import happyaging.server.dto.senior.SeniorRequestDTO;
 import happyaging.server.dto.senior.SeniorResponseDTO;
@@ -14,11 +15,11 @@ import happyaging.server.repository.image.ExampleImageRepository;
 import happyaging.server.repository.image.SeniorImageRepository;
 import happyaging.server.repository.senior.SeniorRepository;
 import happyaging.server.repository.user.UserRepository;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -96,8 +97,13 @@ public class SeniorService {
     @Transactional
     public void saveSeniorImages(Long seniorId, String location, MultipartFile[] imageFiles) {
         Senior senior = findSeniorById(seniorId);
+        log.info("실행");
         for (MultipartFile file : imageFiles) {
+            if (file == null) {
+                log.info("file is null");
+            }
             if (!file.isEmpty()) {
+                log.info("Received file: " + file.getOriginalFilename() + ", Size: " + file.getSize());
                 String filePath = saveFile(file);
                 saveFileData(senior, filePath, location);
             }
@@ -105,11 +111,13 @@ public class SeniorService {
     }
 
     private String saveFile(MultipartFile file) {
-        String savedFileName = createFileName(file);
         try {
-            Path path = Paths.get(uploadDir + File.separator + savedFileName);
-            Files.copy(file.getInputStream(), path);
-            return path.toString();
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String newFileName = UUID.randomUUID() + fileExtension;
+            Path filePath = Paths.get(uploadDir, newFileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            return "http://3.37.58.59:8080/image/senior/" + newFileName;
         } catch (IOException e) {
             log.info(e.getMessage());
             throw new AppException(AppErrorCode.CANNOT_SAVE_IMAGES);
@@ -131,5 +139,13 @@ public class SeniorService {
     @Transactional
     public void updateRank(Senior senior, Integer rank) {
         senior.updateRank(rank);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReadSeniorImageDTO> readSeniorImages(Senior senior) {
+        List<SeniorImage> images = seniorImageRepository.findAllBySenior(senior);
+        return images.stream()
+                .map(image -> ReadSeniorImageDTO.create(image.getLocation(), image.getImage()))
+                .toList();
     }
 }

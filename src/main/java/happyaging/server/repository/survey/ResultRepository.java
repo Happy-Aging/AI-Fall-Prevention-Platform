@@ -1,6 +1,6 @@
-package happyaging.server.repository.result;
+package happyaging.server.repository.survey;
 
-import happyaging.server.domain.result.Result;
+import happyaging.server.domain.survey.Result;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

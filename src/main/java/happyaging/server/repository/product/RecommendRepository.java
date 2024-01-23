@@ -1,4 +1,4 @@
-package happyaging.server.repository.recommend;
+package happyaging.server.repository.product;
 
 import happyaging.server.domain.image.Location;
 import happyaging.server.domain.product.Recommend;

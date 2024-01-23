@@ -1,6 +1,6 @@
 package happyaging.server.controller.result;
 
-import happyaging.server.service.result.ResultService;
+import happyaging.server.service.survey.ResultService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;

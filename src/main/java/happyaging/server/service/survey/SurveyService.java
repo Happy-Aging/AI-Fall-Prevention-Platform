@@ -1,20 +1,18 @@
 package happyaging.server.service.survey;
 
 import happyaging.server.domain.question.Question;
-import happyaging.server.domain.response.Response;
-import happyaging.server.domain.result.Result;
+import happyaging.server.domain.survey.Response;
+import happyaging.server.domain.survey.Result;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.survey.Survey;
 import happyaging.server.dto.admin.survey.ExcelDataDTO;
-import happyaging.server.dto.response.ResponseRequestDTO;
-import happyaging.server.dto.result.ResultResponseDTO;
+import happyaging.server.dto.survey.ResponseRequestDTO;
+import happyaging.server.dto.survey.ResultResponseDTO;
 import happyaging.server.dto.survey.OptionDTO;
 import happyaging.server.dto.survey.SurveyResponseDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
 import happyaging.server.repository.survey.SurveyRepository;
-import happyaging.server.service.response.ResponseService;
-import happyaging.server.service.result.ResultService;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

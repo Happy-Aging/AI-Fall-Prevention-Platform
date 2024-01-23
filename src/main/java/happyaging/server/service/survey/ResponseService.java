@@ -1,11 +1,11 @@
-package happyaging.server.service.response;
+package happyaging.server.service.survey;
 
 import happyaging.server.domain.option.Option;
 import happyaging.server.domain.question.Question;
-import happyaging.server.domain.response.Response;
+import happyaging.server.domain.survey.Response;
 import happyaging.server.domain.survey.Survey;
-import happyaging.server.dto.response.ResponseRequestDTO;
-import happyaging.server.repository.response.ResponseRepository;
+import happyaging.server.dto.survey.ResponseRequestDTO;
+import happyaging.server.repository.survey.ResponseRepository;
 import happyaging.server.service.option.OptionService;
 import happyaging.server.service.question.QuestionService;
 import java.util.ArrayList;

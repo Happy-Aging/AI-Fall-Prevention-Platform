@@ -1,8 +1,7 @@
-package happyaging.server.domain.response;
+package happyaging.server.domain.survey;
 
 import happyaging.server.domain.option.Option;
 import happyaging.server.domain.question.Question;
-import happyaging.server.domain.survey.Survey;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

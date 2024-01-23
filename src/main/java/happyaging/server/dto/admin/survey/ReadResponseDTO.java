@@ -1,6 +1,6 @@
 package happyaging.server.dto.admin.survey;
 
-import happyaging.server.domain.response.Response;
+import happyaging.server.domain.survey.Response;
 import lombok.Builder;
 import lombok.Getter;
 

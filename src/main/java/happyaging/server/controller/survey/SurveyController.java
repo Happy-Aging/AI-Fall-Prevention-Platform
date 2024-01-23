@@ -2,8 +2,8 @@ package happyaging.server.controller.survey;
 
 import happyaging.server.domain.question.Question;
 import happyaging.server.domain.senior.Senior;
-import happyaging.server.dto.response.ResponseRequestDTO;
-import happyaging.server.dto.result.ResultResponseDTO;
+import happyaging.server.dto.survey.ResponseRequestDTO;
+import happyaging.server.dto.survey.ResultResponseDTO;
 import happyaging.server.dto.survey.SurveyResponseDTO;
 import happyaging.server.service.question.QuestionService;
 import happyaging.server.service.senior.SeniorService;

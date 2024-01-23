@@ -1,4 +1,4 @@
-package happyaging.server.dto.report;
+package happyaging.server.dto.survey;
 
 import lombok.Builder;
 import lombok.Getter;

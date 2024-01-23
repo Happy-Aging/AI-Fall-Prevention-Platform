@@ -1,6 +1,6 @@
-package happyaging.server.dto.result;
+package happyaging.server.dto.survey;
 
-import happyaging.server.domain.result.Result;
+import happyaging.server.domain.survey.Result;
 import happyaging.server.domain.survey.Survey;
 import java.time.LocalDate;
 import lombok.Builder;

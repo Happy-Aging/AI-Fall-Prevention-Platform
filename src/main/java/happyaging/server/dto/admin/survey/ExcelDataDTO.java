@@ -1,6 +1,6 @@
 package happyaging.server.dto.admin.survey;
 
-import happyaging.server.domain.response.Response;
+import happyaging.server.domain.survey.Response;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.senior.Sex;
 import happyaging.server.domain.survey.Survey;

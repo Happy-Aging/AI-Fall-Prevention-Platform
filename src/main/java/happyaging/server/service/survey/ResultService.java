@@ -1,10 +1,10 @@
-package happyaging.server.service.result;
+package happyaging.server.service.survey;
 
 import com.google.gson.Gson;
 import happyaging.server.domain.product.Product;
 import happyaging.server.domain.product.Recommend;
-import happyaging.server.domain.response.Response;
-import happyaging.server.domain.result.Result;
+import happyaging.server.domain.survey.Response;
+import happyaging.server.domain.survey.Result;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.survey.Survey;
 import happyaging.server.dto.ai.AiServerRequestDTO;
@@ -13,8 +13,8 @@ import happyaging.server.dto.ai.ResponseInfoDTO;
 import happyaging.server.dto.ai.SolutionDTO;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;
-import happyaging.server.repository.recommend.RecommendRepository;
-import happyaging.server.repository.result.ResultRepository;
+import happyaging.server.repository.product.RecommendRepository;
+import happyaging.server.repository.survey.ResultRepository;
 import happyaging.server.service.product.ProductService;
 import java.io.BufferedReader;
 import java.io.IOException;

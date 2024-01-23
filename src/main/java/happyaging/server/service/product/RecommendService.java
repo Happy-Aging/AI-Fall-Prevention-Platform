@@ -4,7 +4,7 @@ import happyaging.server.domain.image.Location;
 import happyaging.server.domain.product.Product;
 import happyaging.server.domain.product.Recommend;
 import happyaging.server.domain.senior.Senior;
-import happyaging.server.repository.recommend.RecommendRepository;
+import happyaging.server.repository.product.RecommendRepository;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

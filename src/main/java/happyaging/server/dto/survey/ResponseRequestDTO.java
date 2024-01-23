@@ -1,4 +1,4 @@
-package happyaging.server.dto.response;
+package happyaging.server.dto.survey;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.List;

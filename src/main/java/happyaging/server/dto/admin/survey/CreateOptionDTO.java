@@ -1,4 +1,4 @@
-package happyaging.server.dto.survey;
+package happyaging.server.dto.admin.survey;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

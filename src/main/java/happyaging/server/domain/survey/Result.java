@@ -1,6 +1,5 @@
-package happyaging.server.domain.result;
+package happyaging.server.domain.survey;
 
-import happyaging.server.domain.survey.Survey;
 import happyaging.server.dto.ai.AiServerResponseDTO;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

@@ -1,6 +1,6 @@
 package happyaging.server.dto.admin.survey;
 
-import happyaging.server.domain.result.Result;
+import happyaging.server.domain.survey.Result;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.survey.Survey;
 import java.time.LocalDate;

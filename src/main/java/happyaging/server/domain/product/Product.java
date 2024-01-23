@@ -27,10 +27,4 @@ public class Product {
 
     @Column(nullable = false)
     private String image;
-
-    @Column(nullable = false)
-    private String firstInstalledImage;
-
-    @Column(nullable = false)
-    private String secondInstalledImage;
 }

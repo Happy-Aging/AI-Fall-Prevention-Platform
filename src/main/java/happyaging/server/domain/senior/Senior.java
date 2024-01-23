@@ -75,7 +75,6 @@ public class Senior {
     }
 
     public void delete() {
-        this.name = null;
         this.phoneNumber = null;
         this.relation = Relation.NOTHING;
         this.user = null;

@@ -5,6 +5,7 @@ import happyaging.server.domain.image.Location;
 import happyaging.server.domain.image.SeniorImage;
 import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.user.User;
+import happyaging.server.dto.admin.senior.ReadSeniorImageDTO;
 import happyaging.server.dto.senior.ImageResponseDTO;
 import happyaging.server.dto.senior.SeniorRequestDTO;
 import happyaging.server.dto.senior.SeniorResponseDTO;
@@ -14,11 +15,11 @@ import happyaging.server.repository.image.ExampleImageRepository;
 import happyaging.server.repository.image.SeniorImageRepository;
 import happyaging.server.repository.senior.SeniorRepository;
 import happyaging.server.repository.user.UserRepository;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -40,16 +41,16 @@ public class SeniorService {
     private final ExampleImageRepository exampleImageRepository;
     private final SeniorImageRepository seniorImageRepository;
 
-    @Value("${file.upload-dir}")
+    @Value("${file.senior-room}")
     private String uploadDir;
 
     @Transactional
-    public Long createSenior(Long userId, SeniorRequestDTO seniorRequestDTO) {
+    public Senior createSenior(Long userId, SeniorRequestDTO seniorRequestDTO) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(AppErrorCode.INVALID_USER));
         Senior senior = Senior.create(user, seniorRequestDTO);
         seniorRepository.save(senior);
-        return senior.getId();
+        return senior;
     }
 
     @Transactional
@@ -96,7 +97,6 @@ public class SeniorService {
     @Transactional
     public void saveSeniorImages(Long seniorId, String location, MultipartFile[] imageFiles) {
         Senior senior = findSeniorById(seniorId);
-        seniorImageRepository.deleteALLBySeniorId(seniorId);
         for (MultipartFile file : imageFiles) {
             if (!file.isEmpty()) {
                 String filePath = saveFile(file);
@@ -106,11 +106,13 @@ public class SeniorService {
     }
 
     private String saveFile(MultipartFile file) {
-        String savedFileName = createFileName(file);
         try {
-            Path path = Paths.get(uploadDir + File.separator + savedFileName);
-            Files.copy(file.getInputStream(), path);
-            return path.toString();
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String newFileName = UUID.randomUUID() + fileExtension;
+            Path filePath = Paths.get(uploadDir, newFileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            return "http://3.37.58.59:8080/image/senior/" + newFileName;
         } catch (IOException e) {
             log.info(e.getMessage());
             throw new AppException(AppErrorCode.CANNOT_SAVE_IMAGES);
@@ -120,16 +122,25 @@ public class SeniorService {
     private String createFileName(MultipartFile file) {
         String originalFileName = file.getOriginalFilename();
         String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        return UUID.randomUUID().toString() + fileExtension;
+        return UUID.randomUUID() + fileExtension;
     }
 
     private void saveFileData(Senior senior, String filePath, String location) {
         SeniorImage seniorImage = SeniorImage.create(filePath, Location.toLocation(location.trim()), senior);
+        log.info(seniorImage.getImage());
         seniorImageRepository.save(seniorImage);
     }
 
     @Transactional
     public void updateRank(Senior senior, Integer rank) {
         senior.updateRank(rank);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReadSeniorImageDTO> readSeniorImages(Senior senior) {
+        List<SeniorImage> images = seniorImageRepository.findAllBySenior(senior);
+        return images.stream()
+                .map(image -> ReadSeniorImageDTO.create(image.getLocation(), image.getImage()))
+                .toList();
     }
 }

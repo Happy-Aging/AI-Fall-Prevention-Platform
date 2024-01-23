@@ -32,4 +32,12 @@ public class ExampleImage {
 
     @Column(nullable = false)
     private String description;
+
+    public void updateInfo(String description) {
+        this.description = description;
+    }
+
+    public void updateImage(String imagePath) {
+        this.image = imagePath;
+    }
 }

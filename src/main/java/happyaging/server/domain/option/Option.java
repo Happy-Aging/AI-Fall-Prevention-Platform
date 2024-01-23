@@ -33,4 +33,14 @@ public class Option {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     private Question question;
+
+    public static Option create(String content, Question question) {
+        Option option = Option.builder()
+                .content(content)
+                .weight(-1.0)
+                .question(question)
+                .build();
+        question.getOptions().add(option);
+        return option;
+    }
 }

@@ -1,6 +1,6 @@
 package happyaging.server.dto.ai;
 
-import happyaging.server.domain.response.Response;
+import happyaging.server.domain.survey.Response;
 import happyaging.server.domain.senior.Sex;
 import happyaging.server.exception.AppException;
 import happyaging.server.exception.errorcode.AppErrorCode;

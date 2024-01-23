@@ -1,6 +1,6 @@
 package happyaging.server.domain.user;
 
-import happyaging.server.dto.admin.ManagerCreateRequestDTO;
+import happyaging.server.dto.admin.user.CreateManagerDTO;
 import happyaging.server.dto.auth.JoinRequestDTO;
 import happyaging.server.dto.auth.SocialJoinRequestDTO;
 import happyaging.server.dto.user.UserInfoUpdateDTO;
@@ -79,14 +79,16 @@ public class User {
                 .build();
     }
 
-    public static User createManager(String email, String password, String name, String phoneNumber) {
+    public static User createManager(String email, String password, String name, String phoneNumber,
+                                     BCryptPasswordEncoder encoder) {
         return User.builder()
                 .name(name)
                 .email(email)
-                .password(password)
+                .password(encoder.encode(password))
                 .phoneNumber(phoneNumber)
                 .userType(UserType.MANAGER)
                 .vendor(Vendor.HAPPY_AGING)
+                .createdAt(LocalDate.now())
                 .build();
     }
 
@@ -101,14 +103,18 @@ public class User {
     }
 
 
-    public void updateManager(ManagerCreateRequestDTO managerCreateRequestDTO, BCryptPasswordEncoder encoder) {
-        this.email = managerCreateRequestDTO.getEmail();
-        this.name = managerCreateRequestDTO.getName();
-        this.phoneNumber = managerCreateRequestDTO.getPhoneNumber();
+    public void updateManager(CreateManagerDTO createManagerDTO, BCryptPasswordEncoder encoder) {
+        this.email = createManagerDTO.getEmail();
+        this.name = createManagerDTO.getName();
+        this.phoneNumber = createManagerDTO.getPhoneNumber();
 
-        String password = managerCreateRequestDTO.getPassword();
+        String password = createManagerDTO.getPassword();
         if (password != null) {
             this.password = encoder.encode(password);
         }
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 }

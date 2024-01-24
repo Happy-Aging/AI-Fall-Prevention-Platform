@@ -3,9 +3,9 @@ package happyaging.server.service.survey;
 import com.google.gson.Gson;
 import happyaging.server.domain.product.Product;
 import happyaging.server.domain.product.Recommend;
+import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.survey.Response;
 import happyaging.server.domain.survey.Result;
-import happyaging.server.domain.senior.Senior;
 import happyaging.server.domain.survey.Survey;
 import happyaging.server.dto.ai.AiServerRequestDTO;
 import happyaging.server.dto.ai.AiServerResponseDTO;
@@ -74,9 +74,14 @@ public class ResultService {
     }
 
     private List<ResponseInfoDTO> createResponseDTOS(List<Response> responses) {
-        return responses.stream()
-                .map(ResponseInfoDTO::create)
-                .toList();
+        List<ResponseInfoDTO> dtos = new ArrayList<>();
+        for (Response response : responses) {
+            if (response.getQuestion().getId() > 52) {
+                break;
+            }
+            dtos.add(ResponseInfoDTO.create(response));
+        }
+        return dtos;
     }
 
     private AiServerResponseDTO sendToAiServer(AiServerRequestDTO aiServerRequestDTO) {
